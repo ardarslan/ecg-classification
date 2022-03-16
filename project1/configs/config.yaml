@@ -1,7 +1,7 @@
 dataset_dir: data
 checkpoints_dir: checkpoints
 dataset_name: mitbih  # mitbih, ptbdb
-batch_size: 64
+batch_size: 512
 num_workers: 0  # 0 means use the same thread for data processing
 model_name: rnn
 seed: 1337
@@ -14,7 +14,7 @@ max_epochs_before_test: 50
 gradient_max_norm: 5.0
 
 # rnn configs
-rnn_type: vanilla_rnn  # lstm_rnn, gru_rnn
+rnn_type: gru_rnn  # vanilla_rnn, lstm_rnn, gru_rnn
 rnn_hidden_size: 32
 rnn_num_layers: 2
 rnn_bidirectional: True
