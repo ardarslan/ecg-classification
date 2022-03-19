@@ -104,6 +104,7 @@ def evaluate_predictions(all_y, all_yhat, class_weights, cfg):
     result_dict = {}
     if cfg["dataset_name"] == "mitbih":
         result_dict["unbalanced_acc_score"] = accuracy_score(all_y, np.argmax(all_yhat, axis=1))
+        result_dict["balanced_acc_score"] = accuracy_score(all_y, np.argmax(all_yhat, axis=1), sample_weight=sample_weights)
         result_dict["cross_entropy_loss"] = float(torch.nn.CrossEntropyLoss(weight=torch.tensor(class_weights))(torch.tensor(all_yhat), torch.tensor(all_y)))
     elif cfg["dataset_name"] == "ptbdb":
         all_yhat_sigmoided = expit(all_yhat)
