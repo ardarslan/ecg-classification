@@ -133,7 +133,7 @@ if __name__ == "__main__":
     # rnn configs
     parser.add_argument('--rnn_hidden_size', type=int, default=64)
     parser.add_argument('--rnn_num_layers', type=int, default=2)
-    parser.add_argument('--rnn_bidirectional', action='store_true')
+    parser.add_argument('--rnn_bidirectional', type=bool, default=True)
     parser.add_argument('--rnn_dropout', type=float, default=0.0)
     parser.add_argument('--rnn_freeze', type=str, default="never", help=""" - permanent: train only a new FCNN on top of RNN, """
                                                                         """ - temporary: train only a new FCNN on top of RNN """

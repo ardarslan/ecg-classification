@@ -1,0 +1,50 @@
+Sender: LSF System <lsfadmin@eu-ms-006-28>
+Subject: Job 209867183: <python main.py --dataset_name mitbih --model_name vanilla_rnn --transfer_learning --rnn_freeze temporary --rnn_freeze_num_epochs 20> in cluster <euler> Exited
+
+Job <python main.py --dataset_name mitbih --model_name vanilla_rnn --transfer_learning --rnn_freeze temporary --rnn_freeze_num_epochs 20> was submitted from host <eu-g1-015-2> by user <aarslan> in cluster <euler> at Sat Mar 19 18:51:03 2022
+Job was executed on host(s) <2*eu-ms-006-28>, in queue <normal.24h>, as user <aarslan> in cluster <euler> at Sat Mar 19 18:51:13 2022
+</cluster/home/aarslan> was used as the home directory.
+</cluster/home/aarslan/ml4hc/project1/src> was used as the working directory.
+Started at Sat Mar 19 18:51:13 2022
+Terminated at Sat Mar 19 18:52:10 2022
+Results reported at Sat Mar 19 18:52:10 2022
+
+Your job looked like:
+
+------------------------------------------------------------
+# LSBATCH: User input
+python main.py --dataset_name mitbih --model_name vanilla_rnn --transfer_learning --rnn_freeze temporary --rnn_freeze_num_epochs 20
+------------------------------------------------------------
+
+TERM_OWNER: job killed by owner.
+Exited with exit code 130.
+
+Resource usage summary:
+
+    CPU time :                                   49.29 sec.
+    Max Memory :                                 1513 MB
+    Average Memory :                             1184.75 MB
+    Total Requested Memory :                     16384.00 MB
+    Delta Memory :                               14871.00 MB
+    Max Swap :                                   -
+    Max Processes :                              4
+    Max Threads :                                9
+    Run time :                                   81 sec.
+    Turnaround time :                            67 sec.
+
+The output (if any) follows:
+
+Dataset name: mitbih, Model name: vanilla_rnn, Transfer learning: True, RNN freeze: temporary
+Total number of parameters in vanilla_rnn model: 34053
+Traceback (most recent call last):
+  File "/cluster/home/aarslan/ml4hc/project1/src/main.py", line 162, in <module>
+    train(cfg, model=None, train_split="train_val", validation_split="test", test_split=None)
+  File "/cluster/home/aarslan/ml4hc/project1/src/main.py", line 83, in train
+    train_loss_dict = train_epoch(model, optimizer, train_data_loader, class_weights, cfg)
+  File "/cluster/home/aarslan/ml4hc/project1/src/main.py", line 30, in train_epoch
+    cross_entropy_loss.backward()
+  File "/cluster/scratch/aarslan/miniconda3/envs/ml4hc_project1/lib/python3.9/site-packages/torch/_tensor.py", line 255, in backward
+    torch.autograd.backward(self, gradient, retain_graph, create_graph, inputs=inputs)
+  File "/cluster/scratch/aarslan/miniconda3/envs/ml4hc_project1/lib/python3.9/site-packages/torch/autograd/__init__.py", line 147, in backward
+    Variable._execution_engine.run_backward(
+KeyboardInterrupt
