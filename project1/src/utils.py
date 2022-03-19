@@ -3,18 +3,10 @@ import random
 import time
 import numpy as np
 import torch
-import yaml
 from scipy.special import expit
 from sklearn.metrics import accuracy_score, roc_auc_score, average_precision_score
 from model import CNN, RNN
 from dataset import MitbihDataset, PtbdbDataset
-
-
-def read_config(config_path):
-    with open(config_path, "r") as f:
-        cfg = yaml.safe_load(f)
-    cfg["experiment_time"] = str(int(time.time()))
-    return cfg
 
 
 def get_data_loader(cfg, split):
@@ -38,16 +30,29 @@ def get_data_loader(cfg, split):
     return data_loader
 
 
+def write_and_print_new_log(new_log, cfg):
+    print(new_log)
+
+    checkpoints_dir = os.path.join(cfg["checkpoints_dir"], cfg["dataset_name"] + "_" + cfg["model_name"] + "_" + cfg["experiment_time"])
+    os.makedirs(checkpoints_dir, exist_ok=True)
+    log_path = os.path.join(checkpoints_dir, "logs.txt")
+    with open(log_path, "a") as f:
+        f.write(new_log + "\n")
+
+
 def get_model(cfg):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model_name_model_mapping = {
-        "rnn": RNN,
-        "cnn": CNN
-    }
-    model = model_name_model_mapping[cfg["model_name"]](cfg).to(device)
-    print(
+    if "rnn" in cfg["model_name"]:
+        model = RNN
+    elif "cnn" in cfg["model_name"]:
+        model = CNN
+    else:
+        raise Exception(f"Not a valid model_name {cfg['model_name']}.")
+
+    model = model(cfg).to(device)
+    write_and_print_new_log(
         f"Total number of parameters in {cfg['model_name']} model: "
-        + str(sum(p.numel() for p in model.parameters() if p.requires_grad))
+        + str(sum(p.numel() for p in model.parameters() if p.requires_grad)), cfg
     )
     return model
 
@@ -68,8 +73,8 @@ def set_seeds(cfg):
 
 
 def save_checkpoint(model, optimizer, train_loss_at_early_stop, epoch, cfg):
-    print("Saving the best checkpoint...")
-    checkpoints_dir = os.path.join(cfg["checkpoints_dir"], cfg["experiment_time"])
+    write_and_print_new_log("Saving the best checkpoint...", cfg)
+    checkpoints_dir = os.path.join(cfg["checkpoints_dir"], cfg["dataset_name"] + "_" + cfg["model_name"] + "_" + cfg["experiment_time"])
     os.makedirs(checkpoints_dir, exist_ok=True)
     checkpoint_dict = {
         "model_state_dict": model.state_dict(),
@@ -81,7 +86,7 @@ def save_checkpoint(model, optimizer, train_loss_at_early_stop, epoch, cfg):
 
 
 def load_checkpoint(cfg):
-    checkpoints_dir = os.path.join(cfg["checkpoints_dir"], cfg["experiment_time"])
+    checkpoints_dir = os.path.join(cfg["checkpoints_dir"], cfg["dataset_name"] + "_" + cfg["model_name"] + "_" + cfg["experiment_time"])
     checkpoint_dict = torch.load(os.path.join(checkpoints_dir, "best_checkpoint"))
     model = get_model(cfg)
     model.load_state_dict(checkpoint_dict["model_state_dict"])
@@ -102,7 +107,7 @@ def evaluate_predictions(all_y, all_yhat, class_weights, cfg):
         all_yhat_sigmoided = expit(all_yhat)
         result_dict["roc_auc_score"] = roc_auc_score(all_y, all_yhat_sigmoided)
         result_dict["pr_auc_score"] = average_precision_score(all_y, all_yhat_sigmoided)
-        result_dict["cross_entropy_loss"] = float(torch.nn.BCEWithLogitsLoss(weight=torch.tensor(sample_weights).unsqueeze(-1))(torch.tensor(all_yhat), torch.tensor(all_y)))
+        result_dict["cross_entropy_loss"] = float(torch.nn.BCEWithLogitsLoss(weight=torch.tensor(sample_weights).unsqueeze(-1))(torch.tensor(all_yhat), torch.tensor(all_y).float()))
     else:
         raise Exception(f"Not a valid dataset {cfg['dataset']}.")
     return result_dict

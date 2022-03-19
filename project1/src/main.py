@@ -1,9 +1,11 @@
+import argparse
 import numpy as np
 import torch
+import time
 import torch.nn as nn
 from utils import set_seeds, get_model, get_optimizer, get_scheduler, \
                   get_data_loader, save_checkpoint, load_checkpoint, \
-                  evaluate_predictions, read_config
+                  evaluate_predictions, write_and_print_new_log
 
 
 def train_epoch(model, optimizer, train_data_loader, class_weights, cfg):
@@ -70,12 +72,14 @@ def train(cfg):
     for epoch in range(cfg["max_epochs"]):
         # train
         train_loss_dict = train_epoch(model, optimizer, train_data_loader, class_weights, cfg)
-        print(f"Train | Epoch: {epoch+1}, " + ", ".join([f"{loss_function}: {np.round(loss_value, 3)}" for loss_function, loss_value in train_loss_dict.items()]))
+        new_log = f"Train | Epoch: {epoch+1}, " + ", ".join([f"{loss_function}: {np.round(loss_value, 3)}" for loss_function, loss_value in train_loss_dict.items()])
+        write_and_print_new_log(new_log, cfg)
 
         # validate
         val_loss_dict = evaluation_epoch(model, val_data_loader, class_weights, cfg)
         current_val_loss = val_loss_dict['cross_entropy_loss']
-        print(f"Validation | Epoch: {epoch+1}, " + ", ".join([f"{loss_function}: {np.round(loss_value, 3)}" for loss_function, loss_value in val_loss_dict.items()]))
+        new_log = f"Validation | Epoch: {epoch+1}, " + ", ".join([f"{loss_function}: {np.round(loss_value, 3)}" for loss_function, loss_value in val_loss_dict.items()])
+        write_and_print_new_log(new_log, cfg)
 
         if cfg["use_lr_scheduler"]:
             scheduler.step(current_val_loss)
@@ -113,9 +117,40 @@ def train(cfg):
     model, _, _, _ = load_checkpoint(cfg)
 
     test_loss_dict = evaluation_epoch(model, test_data_loader, class_weights, cfg)
-    print("Test | " + ", ".join([f"{loss_function}: {np.round(loss_value, 3)}" for loss_function, loss_value in test_loss_dict.items()]))
+    new_log = "Test | " + ", ".join([f"{loss_function}: {np.round(loss_value, 3)}" for loss_function, loss_value in test_loss_dict.items()])
+    write_and_print_new_log(new_log, cfg)
 
 
 if __name__ == "__main__":
-    cfg = read_config("../configs/config.yaml")
+    parser = argparse.ArgumentParser(description='Arguments for running the script')
+
+    parser.add_argument('--dataset_dir', type=str, default='../data')
+    parser.add_argument('--checkpoints_dir', type=str, default='../checkpoints')
+    parser.add_argument('--dataset_name', type=str, default='mitbih')  # mitbih, ptbdb
+    parser.add_argument('--batch_size', type=int, default=128)
+    parser.add_argument('--num_workers', type=int, default=1)  # 0 means use the same thread for data processing
+    parser.add_argument('--model_name', type=str, default='vanilla_rnn')  # vanilla_rnn, lstm_rnn, gru_rnn, vanilla_cnn, residual_cnn
+    parser.add_argument('--seed', type=int, default=1337)
+    parser.add_argument('--lr', type=int, default=0.001)
+    parser.add_argument('--weight_decay', type=int, default=0.0)
+    parser.add_argument('--use_lr_scheduler', type=int, default=True)
+    parser.add_argument('--lr_scheduler_patience', type=int, default=5)
+    parser.add_argument('--early_stop_patience', type=int, default=10)
+    parser.add_argument('--max_epochs', type=int, default=200)
+    parser.add_argument('--max_epochs_before_test', type=int, default=50)
+    parser.add_argument('--gradient_max_norm', type=int, default=5.0)
+
+    # rnn configs
+    parser.add_argument('--rnn_hidden_size', type=int, default=64)
+    parser.add_argument('--rnn_num_layers', type=int, default=2)
+    parser.add_argument('--rnn_bidirectional', type=bool, default=True)
+    parser.add_argument('--rnn_dropout', type=float, default=0.0)
+
+    # cnn configs
+    parser.add_argument('--cnn_num_layers', type=int, default=4)
+    parser.add_argument('--cnn_num_channels', type=int, default=64)
+
+    cfg = parser.parse_args().__dict__
+    cfg["experiment_time"] = str(int(time.time()))
+    write_and_print_new_log(f"Dataset name: {cfg['dataset_name']}, Model name: {cfg['model_name']}", cfg)
     train(cfg)
