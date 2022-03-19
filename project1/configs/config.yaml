@@ -1,24 +1,27 @@
-dataset_dir: data
-checkpoints_dir: checkpoints
+dataset_dir: ../data
+checkpoints_dir: ../checkpoints
 dataset_name: mitbih  # mitbih, ptbdb
-batch_size: 512
-num_workers: 0  # 0 means use the same thread for data processing
-model_name: rnn
+batch_size: 128
+num_workers: 1  # 0 means use the same thread for data processing
+model_name: cnn
 seed: 1337
 lr: 0.001
 weight_decay: 0.0
 use_lr_scheduler: True
-early_stop_patience: 20
+lr_scheduler_patience: 5
+early_stop_patience: 10
 max_epochs: 200
 max_epochs_before_test: 50
 gradient_max_norm: 5.0
 
 # rnn configs
-rnn_type: gru_rnn  # vanilla_rnn, lstm_rnn, gru_rnn
-rnn_hidden_size: 32
+rnn_type: vanilla_rnn  # vanilla_rnn, lstm_rnn, gru_rnn
+rnn_hidden_size: 64
 rnn_num_layers: 2
 rnn_bidirectional: True
 rnn_dropout: 0.0
+rnn_attention: False
+rnn_attention_num_heads: 4
 
 # cnn configs
 cnn_type: residual_cnn  # vanilla_cnn
