@@ -10,7 +10,7 @@ from model import CNN, RNN
 from dataset import MitbihDataset, PtbdbDataset
 
 
-def get_data_loader(cfg, split):
+def get_data_loader(cfg, split, shuffle):
     dataset_name = cfg["dataset_name"]
     if dataset_name == "mitbih":
         Ds = MitbihDataset
@@ -23,7 +23,7 @@ def get_data_loader(cfg, split):
     data_loader = torch.utils.data.DataLoader(
         dataset,
         batch_size=cfg["batch_size"],
-        shuffle=(split != "test"),
+        shuffle=shuffle,
         num_workers=cfg["num_workers"],
         pin_memory=True,
         drop_last=True
@@ -41,11 +41,18 @@ def write_and_print_new_log(new_log, cfg):
         f.write(new_log + "\n")
 
 
-def save_predictions_to_disk(all_y, all_yhat):
-    df = pd.DataFrame.from_dict({"y": all_y, "yhat": all_yhat})
+def save_predictions_to_disk(all_y, all_yhat, split, cfg):
     checkpoints_dir = os.path.join(cfg["checkpoints_dir"], cfg["dataset_name"] + "_" + cfg["model_name"] + "_" + cfg["experiment_time"])
     os.makedirs(checkpoints_dir, exist_ok=True)
-    predictions_path = os.path.join(checkpoints_dir, "predictions.txt")
+    predictions_path = os.path.join(checkpoints_dir, f"{split}_predictions.txt")
+    if cfg["dataset_name"] == "mitbih":
+        all_yhat_softmaxed = softmax(all_yhat, axis=1)
+        df = pd.DataFrame(np.hstack(all_yhat_softmaxed, all_y), columns=["prob_0", "prob_1", "prob_2", "prob_3", "prob_4", "label"])
+    else:
+        logit_1 = all_yhat
+        prob_1 = expit(logit_1)
+        prob_0 = 1 - prob_1
+        df = pd.DataFrame(np.hstack((prob_0, prob_1, all_y)), columns=["prob_0", "prob_1", "label"])
     df.to_csv(predictions_path, index=False)
 
 
@@ -60,7 +67,7 @@ def get_model(cfg):
 
     model = model(cfg).to(device)
     write_and_print_new_log(
-        f"Total number of parameters in {cfg['model_name']} model: "
+        f"Total number of trainable parameters in {cfg['model_name']} model: "
         + str(sum(p.numel() for p in model.parameters() if p.requires_grad)), cfg
     )
     return model
@@ -103,11 +110,15 @@ def evaluate_predictions(all_y, all_yhat, class_weights, cfg):
     sample_weights = np.array([class_weights[int(label)] for label in all_y], dtype=np.float32)
     result_dict = {}
     if cfg["dataset_name"] == "mitbih":
-        result_dict["unbalanced_acc_score"] = accuracy_score(all_y, np.argmax(all_yhat, axis=1))
-        result_dict["balanced_acc_score"] = accuracy_score(all_y, np.argmax(all_yhat, axis=1), sample_weight=sample_weights)
+        all_yhat_argmaxed = np.argmax(all_yhat, axis=1)
+        result_dict["unbalanced_acc_score"] = accuracy_score(all_y, all_yhat_argmaxed)
+        result_dict["balanced_acc_score"] = accuracy_score(all_y, all_yhat_argmaxed, sample_weight=sample_weights)
         result_dict["cross_entropy_loss"] = float(torch.nn.CrossEntropyLoss(weight=torch.tensor(class_weights))(torch.tensor(all_yhat), torch.tensor(all_y)))
     elif cfg["dataset_name"] == "ptbdb":
         all_yhat_sigmoided = expit(all_yhat)
+        all_yhat_argmaxed = 1 * (all_yhat_sigmoided >= 0.5)
+        result_dict["unbalanced_acc_score"] = accuracy_score(all_y, all_yhat_argmaxed)
+        result_dict["balanced_acc_score"] = accuracy_score(all_y, all_yhat_argmaxed, sample_weight=sample_weights)
         result_dict["roc_auc_score"] = roc_auc_score(all_y, all_yhat_sigmoided)
         result_dict["pr_auc_score"] = average_precision_score(all_y, all_yhat_sigmoided)
         result_dict["cross_entropy_loss"] = float(torch.nn.BCEWithLogitsLoss(weight=torch.tensor(sample_weights).unsqueeze(-1))(torch.tensor(all_yhat), torch.tensor(all_y).float()))

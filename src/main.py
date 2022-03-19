@@ -17,11 +17,11 @@ def train_epoch(model, optimizer, train_data_loader, class_weights, cfg):
     for batch in train_data_loader:
         optimizer.zero_grad()
         X, y = batch["X"].float().to(device), batch["y"].long().to(device)
-        sample_weights = np.array([class_weights[int(label)] for label in y], dtype=np.float32)
         yhat = model(X)
         if cfg["dataset_name"] == "mitbih":
             cross_entropy_loss = torch.nn.CrossEntropyLoss(weight=torch.tensor(class_weights))(yhat, y)
         elif cfg["dataset_name"] == "ptbdb":
+            sample_weights = np.array([class_weights[int(label)] for label in y], dtype=np.float32)
             cross_entropy_loss = torch.nn.BCEWithLogitsLoss(weight=torch.tensor(sample_weights).unsqueeze(-1))(yhat, y.float())
         else:
             raise Exception(f"Not a valid dataset {cfg['dataset_name']}.")
@@ -36,7 +36,7 @@ def train_epoch(model, optimizer, train_data_loader, class_weights, cfg):
     return train_loss_dict
 
 
-def evaluation_epoch(model, evaluation_data_loader, class_weights, cfg, save_to_disk=False):
+def evaluation_epoch(model, evaluation_data_loader, class_weights, split, cfg, save_to_disk=False):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.eval()
     with torch.no_grad():
@@ -50,7 +50,7 @@ def evaluation_epoch(model, evaluation_data_loader, class_weights, cfg, save_to_
         all_y = np.concatenate(all_y, axis=0)
         all_yhat = np.concatenate(all_yhat, axis=0).astype(np.float32)
         if save_to_disk:
-            save_predictions_to_disk(all_y, all_yhat)
+            save_predictions_to_disk(all_y, all_yhat, split, cfg)
         eval_loss_dict = evaluate_predictions(all_y, all_yhat, class_weights, cfg)
     return eval_loss_dict
 
@@ -66,9 +66,9 @@ def train(cfg, model, train_split, validation_split, test_split):
     if cfg["use_lr_scheduler"]:
         scheduler = get_scheduler(cfg, optimizer)
 
-    train_data_loader = get_data_loader(cfg, split=train_split)
+    train_data_loader = get_data_loader(cfg, split=train_split, shuffle=True)
     class_weights = train_data_loader.dataset.class_weights
-    val_data_loader = get_data_loader(cfg, split=validation_split)
+    val_data_loader = get_data_loader(cfg, split=validation_split, shuffle=False)
 
     best_val_loss = np.inf
     early_stop_counter = 0
@@ -85,7 +85,7 @@ def train(cfg, model, train_split, validation_split, test_split):
         write_and_print_new_log(new_log, cfg)
 
         # validate
-        val_loss_dict = evaluation_epoch(model, val_data_loader, class_weights, cfg)
+        val_loss_dict = evaluation_epoch(model, val_data_loader, class_weights, "val", cfg, save_to_disk=False)
         current_val_loss = val_loss_dict['cross_entropy_loss']
         new_log = f"Validation {cfg['dataset_name']} | Epoch: {epoch+1}, " + ", ".join([f"{loss_function}: {np.round(loss_value, 3)}" for loss_function, loss_value in val_loss_dict.items()])
         write_and_print_new_log(new_log, cfg)
@@ -104,9 +104,16 @@ def train(cfg, model, train_split, validation_split, test_split):
             break
     
     if test_split:
-        test_data_loader = get_data_loader(cfg, split=test_split)
         model = load_checkpoint(cfg)
-        test_loss_dict = evaluation_epoch(model, test_data_loader, class_weights, cfg, save_to_disk=True)
+        
+        train_data_loader = get_data_loader(cfg, split=train_split, shuffle=False)
+        val_data_loader = get_data_loader(cfg, split=val_split, shuffle=False)
+        test_data_loader = get_data_loader(cfg, split=test_split, shuffle=False)
+
+        evaluation_epoch(model, train_data_loader, class_weights, train_split, cfg, save_to_disk=True)
+        evaluation_epoch(model, val_data_loader, class_weights, val_split, cfg, save_to_disk=True)
+        test_loss_dict = evaluation_epoch(model, test_data_loader, class_weights, test_split, cfg, save_to_disk=True)
+
         new_log = f"Test {cfg['dataset_name']} | " + ", ".join([f"{loss_function}: {np.round(loss_value, 3)}" for loss_function, loss_value in test_loss_dict.items()])
         write_and_print_new_log(new_log, cfg)
 
@@ -140,7 +147,7 @@ if __name__ == "__main__":
                                                                         """ for 'rnn_freeze_num_epochs', after that start training the """
                                                                         """ RNN as well, """
                                                                         """ - never: both RNN and FCNN will be trained from the """
-                                                                        """ the beginning of pretraining.""")
+                                                                        """ the beginning of finetuning.""")
     parser.add_argument('--rnn_freeze_num_epochs', type=int, default=20)
 
     # cnn configs
