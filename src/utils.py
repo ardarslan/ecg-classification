@@ -4,7 +4,7 @@ import time
 import numpy as np
 import pandas as pd
 import torch
-from scipy.special import expit
+from scipy.special import expit, softmax
 from sklearn.metrics import accuracy_score, roc_auc_score, average_precision_score
 from model import CNN, RNN
 from dataset import MitbihDataset, PtbdbDataset
