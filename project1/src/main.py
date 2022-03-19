@@ -1,11 +1,12 @@
+import time
 import argparse
 import numpy as np
 import torch
-import time
 import torch.nn as nn
 from utils import set_seeds, get_model, get_optimizer, get_scheduler, \
                   get_data_loader, save_checkpoint, load_checkpoint, \
-                  evaluate_predictions, write_and_print_new_log
+                  evaluate_predictions, write_and_print_new_log, \
+                  save_predictions_to_disk
 
 
 def train_epoch(model, optimizer, train_data_loader, class_weights, cfg):
@@ -24,8 +25,8 @@ def train_epoch(model, optimizer, train_data_loader, class_weights, cfg):
             cross_entropy_loss = torch.nn.BCEWithLogitsLoss(weight=torch.tensor(sample_weights).unsqueeze(-1))(yhat, y.float())
         else:
             raise Exception(f"Not a valid dataset {cfg['dataset_name']}.")
-        all_y.append(y.detach().cpu())
-        all_yhat.append(yhat.detach().cpu())
+        all_y.append(y.detach().cpu().numpy())
+        all_yhat.append(yhat.detach().cpu().numpy())
         cross_entropy_loss.backward()
         nn.utils.clip_grad_norm_(model.parameters(), cfg["gradient_max_norm"])
         optimizer.step()
@@ -35,7 +36,7 @@ def train_epoch(model, optimizer, train_data_loader, class_weights, cfg):
     return train_loss_dict
 
 
-def evaluation_epoch(model, evaluation_data_loader, class_weights, cfg):
+def evaluation_epoch(model, evaluation_data_loader, class_weights, cfg, save_to_disk=False):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.eval()
     with torch.no_grad():
@@ -44,48 +45,56 @@ def evaluation_epoch(model, evaluation_data_loader, class_weights, cfg):
         for batch in evaluation_data_loader:
             X, y = batch["X"].float().to(device), batch["y"].long().to(device)
             yhat = model(X)
-            all_y.append(y.detach().cpu())
-            all_yhat.append(yhat.detach().cpu())
+            all_y.append(y.detach().cpu().numpy())
+            all_yhat.append(yhat.detach().cpu().numpy())
         all_y = np.concatenate(all_y, axis=0)
         all_yhat = np.concatenate(all_yhat, axis=0).astype(np.float32)
+        if save_to_disk:
+            save_predictions_to_disk(all_y, all_yhat)
         eval_loss_dict = evaluate_predictions(all_y, all_yhat, class_weights, cfg)
     return eval_loss_dict
 
 
-def train(cfg):
+def train(cfg, model, train_split, validation_split, test_split):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     set_seeds(cfg)
 
-    model = get_model(cfg).to(device)
+    if not model:
+        model = get_model(cfg)
     optimizer = get_optimizer(cfg, model)
 
     if cfg["use_lr_scheduler"]:
         scheduler = get_scheduler(cfg, optimizer)
 
-    train_data_loader = get_data_loader(cfg, split="train")
+    train_data_loader = get_data_loader(cfg, split=train_split)
     class_weights = train_data_loader.dataset.class_weights
-    val_data_loader = get_data_loader(cfg, split="val")
-    test_data_loader = get_data_loader(cfg, split="test")
+    val_data_loader = get_data_loader(cfg, split=validation_split)
 
     best_val_loss = np.inf
     early_stop_counter = 0
     for epoch in range(cfg["max_epochs"]):
+        # if we are in the second training part of transfer learning task and the rule is to unfreeze RNN after rnn_freeze_num_epochs:
+        if cfg["transfer_learning"] and cfg["dataset_name"] == "ptbdb" and cfg["rnn_freeze"] == "temporary" and cfg["rnn_freeze_num_epochs"] == epoch:
+            write_and_print_new_log("Unfreezing weights...", cfg)
+            for param in model.parameters():
+                param.requires_grad = True
+
         # train
         train_loss_dict = train_epoch(model, optimizer, train_data_loader, class_weights, cfg)
-        new_log = f"Train | Epoch: {epoch+1}, " + ", ".join([f"{loss_function}: {np.round(loss_value, 3)}" for loss_function, loss_value in train_loss_dict.items()])
+        new_log = f"Train {cfg['dataset_name']} | Epoch: {epoch+1}, " + ", ".join([f"{loss_function}: {np.round(loss_value, 3)}" for loss_function, loss_value in train_loss_dict.items()])
         write_and_print_new_log(new_log, cfg)
 
         # validate
         val_loss_dict = evaluation_epoch(model, val_data_loader, class_weights, cfg)
         current_val_loss = val_loss_dict['cross_entropy_loss']
-        new_log = f"Validation | Epoch: {epoch+1}, " + ", ".join([f"{loss_function}: {np.round(loss_value, 3)}" for loss_function, loss_value in val_loss_dict.items()])
+        new_log = f"Validation {cfg['dataset_name']} | Epoch: {epoch+1}, " + ", ".join([f"{loss_function}: {np.round(loss_value, 3)}" for loss_function, loss_value in val_loss_dict.items()])
         write_and_print_new_log(new_log, cfg)
 
         if cfg["use_lr_scheduler"]:
             scheduler.step(current_val_loss)
 
         if current_val_loss < best_val_loss:
-            save_checkpoint(model, optimizer, train_loss_dict["cross_entropy_loss"], epoch, cfg)
+            save_checkpoint(model, cfg)
             best_val_loss = current_val_loss
             early_stop_counter = 0
         else:
@@ -93,32 +102,13 @@ def train(cfg):
 
         if early_stop_counter == cfg["early_stop_patience"]:
             break
-
-    # test
-    # train_val_data_loader = get_data_loader(cfg, split="train_val")
-    # class_weights = train_val_data_loader.dataset.class_weights
-    # val_data_loader = get_data_loader(cfg, split="val")
-    # test_data_loader = get_data_loader(cfg, split="test")
-    # model, optimizer, train_loss_at_early_stop, epoch = load_checkpoint(cfg)
-
-    # Algorithm 7.3 in https://www.deeplearningbook.org/contents/regularization.html
-    # got_lower_val_loss = False
-    # for epoch_idx in range(cfg["max_epochs_before_test"]):
-    #     train_val_loss_dict = train_epoch(model, optimizer, train_val_data_loader, class_weights, cfg)
-    #     print(f"Train+Val | Epoch: {epoch+epoch_idx+1}, " + ", ".join([f"{loss_function}: {np.round(loss_value, 3)}" for loss_function, loss_value in train_val_loss_dict.items()]))
-    #     val_loss_dict = evaluation_epoch(model, val_data_loader, class_weights, cfg)
-    #     print(f"Val | Epoch: {epoch+epoch_idx+1}, " + ", ".join([f"{loss_function}: {np.round(loss_value, 3)}" for loss_function, loss_value in val_loss_dict.items()]))
-    #     current_val_loss = val_loss_dict["cross_entropy_loss"]
-    #     if current_val_loss < train_loss_at_early_stop:
-    #         got_lower_val_loss = True
-    #         break
     
-    # if not got_lower_val_loss:
-    model, _, _, _ = load_checkpoint(cfg)
-
-    test_loss_dict = evaluation_epoch(model, test_data_loader, class_weights, cfg)
-    new_log = "Test | " + ", ".join([f"{loss_function}: {np.round(loss_value, 3)}" for loss_function, loss_value in test_loss_dict.items()])
-    write_and_print_new_log(new_log, cfg)
+    if test_split:
+        test_data_loader = get_data_loader(cfg, split=test_split)
+        model = load_checkpoint(cfg)
+        test_loss_dict = evaluation_epoch(model, test_data_loader, class_weights, cfg, save_to_disk=True)
+        new_log = f"Test {cfg['dataset_name']} | " + ", ".join([f"{loss_function}: {np.round(loss_value, 3)}" for loss_function, loss_value in test_loss_dict.items()])
+        write_and_print_new_log(new_log, cfg)
 
 
 if __name__ == "__main__":
@@ -137,14 +127,21 @@ if __name__ == "__main__":
     parser.add_argument('--lr_scheduler_patience', type=int, default=5)
     parser.add_argument('--early_stop_patience', type=int, default=10)
     parser.add_argument('--max_epochs', type=int, default=200)
-    parser.add_argument('--max_epochs_before_test', type=int, default=50)
     parser.add_argument('--gradient_max_norm', type=int, default=5.0)
+    parser.add_argument('--transfer_learning', action='store_true')
 
     # rnn configs
     parser.add_argument('--rnn_hidden_size', type=int, default=64)
     parser.add_argument('--rnn_num_layers', type=int, default=2)
-    parser.add_argument('--rnn_bidirectional', type=bool, default=True)
+    parser.add_argument('--rnn_bidirectional', action='store_true')
     parser.add_argument('--rnn_dropout', type=float, default=0.0)
+    parser.add_argument('--rnn_freeze', type=str, default="never", help=""" - permanent: train only a new FCNN on top of RNN, """
+                                                                        """ - temporary: train only a new FCNN on top of RNN """
+                                                                        """ for 'rnn_freeze_num_epochs', after that start training the """
+                                                                        """ RNN as well, """
+                                                                        """ - never: both RNN and FCNN will be trained from the """
+                                                                        """ the beginning of pretraining.""")
+    parser.add_argument('--rnn_freeze_num_epochs', type=int, default=20)
 
     # cnn configs
     parser.add_argument('--cnn_num_layers', type=int, default=4)
@@ -152,5 +149,32 @@ if __name__ == "__main__":
 
     cfg = parser.parse_args().__dict__
     cfg["experiment_time"] = str(int(time.time()))
-    write_and_print_new_log(f"Dataset name: {cfg['dataset_name']}, Model name: {cfg['model_name']}", cfg)
-    train(cfg)
+
+    write_and_print_new_log(f"Dataset name: {cfg['dataset_name']}, Model name: {cfg['model_name']}, Transfer learning: {cfg['transfer_learning']}, RNN freeze: {cfg['rnn_freeze']}", cfg)
+
+    if not cfg["transfer_learning"]: # task 1 or 2
+        train(cfg, model=None, train_split="train", validation_split="val", test_split="test")
+    else: # task 4
+
+        # train on mitbih
+        cfg["dataset_name"] = "mitbih"
+        assert "rnn" in cfg["model_name"], "Transfer learning task was only implemented for RNN."
+        train(cfg, model=None, train_split="train_val", validation_split="test", test_split=None)
+        model = load_checkpoint(cfg)
+        
+        # freeze all weights if necessary
+        if cfg["rnn_freeze"] in ["permanent", "temporary"]:
+            write_and_print_new_log("Freezing weights...", cfg)
+            for param in model.parameters():
+                param.requires_grad = False
+        elif cfg["rnn_freeze"] == "never":
+            pass
+        else:
+            raise Exception(f"Not a valid rnn_freeze {cfg['rnn_freeze']}.")
+        
+        # replace FCNN with a suitable one. newly added layer's weights have requires_grad = True by default
+        model.fc = nn.Linear(model.rnn_output_size, 1)
+
+        # train and test on ptbdb
+        cfg["dataset_name"] = "ptbdb"
+        train(cfg, model=model, train_split="train", validation_split="val", test_split="test")

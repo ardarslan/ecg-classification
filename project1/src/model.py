@@ -21,16 +21,14 @@ class RNN(nn.Module):
                             bidirectional=cfg["rnn_bidirectional"],
                             dropout=cfg["rnn_dropout"],
                             batch_first=True)
-        rnn_output_size = cfg["rnn_hidden_size"]
-        if cfg["rnn_bidirectional"]:
-            rnn_output_size *= 2
+        self.rnn_output_size = self.D * cfg["rnn_hidden_size"]
         if cfg["dataset_name"] == "ptbdb":
             linear_output_size = 1
         elif cfg["dataset_name"] == "mitbih":
             linear_output_size = 5
         else:
             raise Exception(f"Not a valid dataset_name {cfg['dataset_name']}.")
-        self.fc = nn.Linear(rnn_output_size, linear_output_size)
+        self.fc = nn.Linear(self.rnn_output_size, linear_output_size)
 
     def forward(self, X):
         N, L, _ = X.shape
@@ -43,7 +41,7 @@ class RNN(nn.Module):
             raise Exception(f"Not a valid model_name {self.cfg['model_name']}.")
         last_cell_hidden_states = last_cell_hidden_states.view(self.cfg["rnn_num_layers"], self.D, N, self.cfg["rnn_hidden_size"])
         last_cell_hidden_states_of_last_layer = last_cell_hidden_states[-1, :, :, :] # (D, N, H_out)
-        last_cell_hidden_states_of_last_layer = last_cell_hidden_states_of_last_layer.permute(1, 0, 2).contiguous().view(N, self.D * self.cfg["rnn_hidden_size"]) # (N, D*H_out)
+        last_cell_hidden_states_of_last_layer = last_cell_hidden_states_of_last_layer.permute(1, 0, 2).contiguous().view(N, self.rnn_output_size) # (N, D*H_out)
         output = self.fc(last_cell_hidden_states_of_last_layer)
         return output
 

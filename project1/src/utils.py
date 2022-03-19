@@ -2,6 +2,7 @@ import os
 import random
 import time
 import numpy as np
+import pandas as pd
 import torch
 from scipy.special import expit
 from sklearn.metrics import accuracy_score, roc_auc_score, average_precision_score
@@ -40,6 +41,14 @@ def write_and_print_new_log(new_log, cfg):
         f.write(new_log + "\n")
 
 
+def save_predictions_to_disk(all_y, all_yhat):
+    df = pd.DataFrame.from_dict({"y": all_y, "yhat": all_yhat})
+    checkpoints_dir = os.path.join(cfg["checkpoints_dir"], cfg["dataset_name"] + "_" + cfg["model_name"] + "_" + cfg["experiment_time"])
+    os.makedirs(checkpoints_dir, exist_ok=True)
+    predictions_path = os.path.join(checkpoints_dir, "predictions.txt")
+    df.to_csv(predictions_path, index=False)
+
+
 def get_model(cfg):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     if "rnn" in cfg["model_name"]:
@@ -72,15 +81,12 @@ def set_seeds(cfg):
     torch.cuda.manual_seed(cfg["seed"])
 
 
-def save_checkpoint(model, optimizer, train_loss_at_early_stop, epoch, cfg):
+def save_checkpoint(model, cfg):
     write_and_print_new_log("Saving the best checkpoint...", cfg)
     checkpoints_dir = os.path.join(cfg["checkpoints_dir"], cfg["dataset_name"] + "_" + cfg["model_name"] + "_" + cfg["experiment_time"])
     os.makedirs(checkpoints_dir, exist_ok=True)
     checkpoint_dict = {
-        "model_state_dict": model.state_dict(),
-        "optimizer_state_dict": optimizer.state_dict(),
-        "train_loss_at_early_stop": train_loss_at_early_stop,
-        "epoch": epoch
+        "model_state_dict": model.state_dict()
     }
     torch.save(checkpoint_dict, os.path.join(checkpoints_dir, "best_checkpoint"))
 
@@ -90,11 +96,7 @@ def load_checkpoint(cfg):
     checkpoint_dict = torch.load(os.path.join(checkpoints_dir, "best_checkpoint"))
     model = get_model(cfg)
     model.load_state_dict(checkpoint_dict["model_state_dict"])
-    optimizer = get_optimizer(cfg, model)
-    optimizer.load_state_dict(checkpoint_dict["optimizer_state_dict"])
-    train_loss_at_early_stop = checkpoint_dict["train_loss_at_early_stop"]
-    epoch = checkpoint_dict["epoch"]
-    return model, optimizer, train_loss_at_early_stop, epoch
+    return model
 
 
 def evaluate_predictions(all_y, all_yhat, class_weights, cfg):
