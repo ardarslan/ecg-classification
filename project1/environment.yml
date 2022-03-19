@@ -11,4 +11,5 @@ dependencies:
   - scikit-learn=1.0.2
   - pytorch=1.9.0
   - scipy=1.7.1
+  - pandas=1.4.1
 prefix: /cluster/scratch/aarslan/miniconda3/envs/ml4hc_project1
