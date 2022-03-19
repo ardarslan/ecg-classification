@@ -57,7 +57,7 @@ def get_optimizer(cfg, model):
 
 
 def get_scheduler(cfg, optimizer):
-    return torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, verbose=True)
+    return torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, patience=cfg["lr_scheduler_patience"], verbose=True)
 
 
 def set_seeds(cfg):
@@ -97,13 +97,12 @@ def evaluate_predictions(all_y, all_yhat, class_weights, cfg):
     result_dict = {}
     if cfg["dataset_name"] == "mitbih":
         result_dict["unbalanced_acc_score"] = accuracy_score(all_y, np.argmax(all_yhat, axis=1))
-        result_dict["balanced_acc_score"] = accuracy_score(all_y, np.argmax(all_yhat, axis=1), sample_weight=sample_weights)
         result_dict["cross_entropy_loss"] = float(torch.nn.CrossEntropyLoss(weight=torch.tensor(class_weights))(torch.tensor(all_yhat), torch.tensor(all_y)))
     elif cfg["dataset_name"] == "ptbdb":
         all_yhat_sigmoided = expit(all_yhat)
         result_dict["roc_auc_score"] = roc_auc_score(all_y, all_yhat_sigmoided)
         result_dict["pr_auc_score"] = average_precision_score(all_y, all_yhat_sigmoided)
-        result_dict["cross_entropy_loss"] = float(torch.nn.BCEWithLogitsLoss(weight=torch.tensor(sample_weights).unsqueeze(-1))(torch.tensor(all_yhat), torch.tensor(all_y).float()))
+        result_dict["cross_entropy_loss"] = float(torch.nn.BCEWithLogitsLoss(weight=torch.tensor(sample_weights).unsqueeze(-1))(torch.tensor(all_yhat), torch.tensor(all_y)))
     else:
         raise Exception(f"Not a valid dataset {cfg['dataset']}.")
     return result_dict

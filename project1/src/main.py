@@ -91,31 +91,31 @@ def train(cfg):
             break
 
     # test
-    train_val_data_loader = get_data_loader(cfg, split="train_val")
-    class_weights = train_val_data_loader.dataset.class_weights
-    val_data_loader = get_data_loader(cfg, split="val")
-    test_data_loader = get_data_loader(cfg, split="test")
-    model, optimizer, train_loss_at_early_stop, epoch = load_checkpoint(cfg)
+    # train_val_data_loader = get_data_loader(cfg, split="train_val")
+    # class_weights = train_val_data_loader.dataset.class_weights
+    # val_data_loader = get_data_loader(cfg, split="val")
+    # test_data_loader = get_data_loader(cfg, split="test")
+    # model, optimizer, train_loss_at_early_stop, epoch = load_checkpoint(cfg)
 
     # Algorithm 7.3 in https://www.deeplearningbook.org/contents/regularization.html
-    got_lower_val_loss = False
-    for epoch_idx in range(cfg["max_epochs_before_test"]):
-        train_val_loss_dict = train_epoch(model, optimizer, train_val_data_loader, class_weights, cfg)
-        print(f"Train+Val | Epoch: {epoch+epoch_idx+1}, " + ", ".join([f"{loss_function}: {np.round(loss_value, 3)}" for loss_function, loss_value in train_val_loss_dict.items()]))
-        val_loss_dict = evaluation_epoch(model, val_data_loader, class_weights, cfg)
-        print(f"Val | Epoch: {epoch+epoch_idx+1}, " + ", ".join([f"{loss_function}: {np.round(loss_value, 3)}" for loss_function, loss_value in val_loss_dict.items()]))
-        current_val_loss = val_loss_dict["cross_entropy_loss"]
-        if current_val_loss < train_loss_at_early_stop:
-            got_lower_val_loss = True
-            break
+    # got_lower_val_loss = False
+    # for epoch_idx in range(cfg["max_epochs_before_test"]):
+    #     train_val_loss_dict = train_epoch(model, optimizer, train_val_data_loader, class_weights, cfg)
+    #     print(f"Train+Val | Epoch: {epoch+epoch_idx+1}, " + ", ".join([f"{loss_function}: {np.round(loss_value, 3)}" for loss_function, loss_value in train_val_loss_dict.items()]))
+    #     val_loss_dict = evaluation_epoch(model, val_data_loader, class_weights, cfg)
+    #     print(f"Val | Epoch: {epoch+epoch_idx+1}, " + ", ".join([f"{loss_function}: {np.round(loss_value, 3)}" for loss_function, loss_value in val_loss_dict.items()]))
+    #     current_val_loss = val_loss_dict["cross_entropy_loss"]
+    #     if current_val_loss < train_loss_at_early_stop:
+    #         got_lower_val_loss = True
+    #         break
     
-    if not got_lower_val_loss:
-        model, _, _, _ = load_checkpoint(cfg)
-    
+    # if not got_lower_val_loss:
+    model, _, _, _ = load_checkpoint(cfg)
+
     test_loss_dict = evaluation_epoch(model, test_data_loader, class_weights, cfg)
     print("Test | " + ", ".join([f"{loss_function}: {np.round(loss_value, 3)}" for loss_function, loss_value in test_loss_dict.items()]))
 
 
 if __name__ == "__main__":
-    cfg = read_config("configs/config.yaml")
+    cfg = read_config("../configs/config.yaml")
     train(cfg)
