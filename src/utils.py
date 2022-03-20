@@ -47,12 +47,12 @@ def save_predictions_to_disk(all_y, all_yhat, split, cfg):
     predictions_path = os.path.join(checkpoints_dir, f"{split}_predictions.txt")
     if cfg["dataset_name"] == "mitbih":
         all_yhat_softmaxed = softmax(all_yhat, axis=1)
-        df = pd.DataFrame(np.hstack((all_yhat_softmaxed, all_y)), columns=["prob_0", "prob_1", "prob_2", "prob_3", "prob_4", "label"])
+        df = pd.DataFrame(np.hstack((all_yhat_softmaxed, all_y.reshape(-1, 1))), columns=["prob_0", "prob_1", "prob_2", "prob_3", "prob_4", "label"])
     else:
         logit_1 = all_yhat
         prob_1 = expit(logit_1)
         prob_0 = 1 - prob_1
-        df = pd.DataFrame(np.hstack((prob_0, prob_1, all_y)), columns=["prob_0", "prob_1", "label"])
+        df = pd.DataFrame(np.hstack((prob_0, prob_1, all_y.reshape(-1, 1))), columns=["prob_0", "prob_1", "label"])
     df.to_csv(predictions_path, index=False)
 
 
