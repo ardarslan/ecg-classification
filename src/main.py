@@ -107,11 +107,11 @@ def train(cfg, model, train_split, validation_split, test_split):
         model = load_checkpoint(cfg)
         
         train_data_loader = get_data_loader(cfg, split=train_split, shuffle=False)
-        val_data_loader = get_data_loader(cfg, split=val_split, shuffle=False)
+        val_data_loader = get_data_loader(cfg, split=validation_split, shuffle=False)
         test_data_loader = get_data_loader(cfg, split=test_split, shuffle=False)
 
         evaluation_epoch(model, train_data_loader, class_weights, train_split, cfg, save_to_disk=True)
-        evaluation_epoch(model, val_data_loader, class_weights, val_split, cfg, save_to_disk=True)
+        evaluation_epoch(model, val_data_loader, class_weights, validation_split, cfg, save_to_disk=True)
         test_loss_dict = evaluation_epoch(model, test_data_loader, class_weights, test_split, cfg, save_to_disk=True)
 
         new_log = f"Test {cfg['dataset_name']} | " + ", ".join([f"{loss_function}: {np.round(loss_value, 3)}" for loss_function, loss_value in test_loss_dict.items()])
