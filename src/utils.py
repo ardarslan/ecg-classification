@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 import torch
 from scipy.special import expit, softmax
-from sklearn.metrics import accuracy_score, roc_auc_score, average_precision_score
+from sklearn.metrics import accuracy_score, roc_auc_score, average_precision_score, balanced_accuracy_score
 from model import CNN, RNN
 from dataset import MitbihDataset, PtbdbDataset
 
@@ -112,13 +112,13 @@ def evaluate_predictions(all_y, all_yhat, class_weights, cfg):
     if cfg["dataset_name"] == "mitbih":
         all_yhat_argmaxed = np.argmax(all_yhat, axis=1)
         result_dict["unbalanced_acc_score"] = accuracy_score(all_y, all_yhat_argmaxed)
-        result_dict["balanced_acc_score"] = accuracy_score(all_y, all_yhat_argmaxed, sample_weight=sample_weights)
+        result_dict["balanced_acc_score"] = balanced_accuracy_score(all_y, all_yhat_argmaxed)
         result_dict["cross_entropy_loss"] = float(torch.nn.CrossEntropyLoss(weight=torch.tensor(class_weights))(torch.tensor(all_yhat), torch.tensor(all_y)))
     elif cfg["dataset_name"] == "ptbdb":
         all_yhat_sigmoided = expit(all_yhat)
         all_yhat_argmaxed = 1 * (all_yhat_sigmoided >= 0.5)
         result_dict["unbalanced_acc_score"] = accuracy_score(all_y, all_yhat_argmaxed)
-        result_dict["balanced_acc_score"] = accuracy_score(all_y, all_yhat_argmaxed, sample_weight=sample_weights)
+        result_dict["balanced_acc_score"] = balanced_accuracy_score(all_y, all_yhat_argmaxed)
         result_dict["roc_auc_score"] = roc_auc_score(all_y, all_yhat_sigmoided)
         result_dict["pr_auc_score"] = average_precision_score(all_y, all_yhat_sigmoided)
         result_dict["cross_entropy_loss"] = float(torch.nn.BCEWithLogitsLoss(weight=torch.tensor(sample_weights).unsqueeze(-1))(torch.tensor(all_yhat), torch.tensor(all_y).float()))
