@@ -5,5 +5,5 @@
 .vscode
 *lsf.*
 
-checkpoints
+*best_checkpoint
 data
