@@ -1,0 +1,14 @@
+name: ml4hc_project1
+channels:
+  - pytorch
+  - anaconda
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.9.0
+  - numpy=1.20.3
+  - pandas=1.4.1
+  - scikit-learn=1.0.2
+  - pytorch=1.9.0
+  - scipy=1.7.1
+  - pandas=1.4.1
