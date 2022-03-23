@@ -39,10 +39,11 @@ class RNN(nn.Module):
             _, last_cell_hidden_states = self.rnn.forward(X) # (D*n_layers, N, H_out)
         else:
             raise Exception(f"Not a valid model_name {self.cfg['model_name']}.")
+        last_cell_hidden_states = F.leaky_relu(last_cell_hidden_states)
         last_cell_hidden_states = last_cell_hidden_states.view(self.cfg["rnn_num_layers"], self.D, N, self.cfg["rnn_hidden_size"])
         last_cell_hidden_states_of_last_layer = last_cell_hidden_states[-1, :, :, :] # (D, N, H_out)
         last_cell_hidden_states_of_last_layer = last_cell_hidden_states_of_last_layer.permute(1, 0, 2).contiguous().view(N, self.rnn_output_size) # (N, D*H_out)
-        output = self.fc(last_cell_hidden_states_of_last_layer)
+        output = self.fc(last_cell_hidden_states_of_last_layer) # (N, num_logits)
         return output
 
 
@@ -89,5 +90,5 @@ class CNN(nn.Module):
                 raise Exception(f"Not a valid model_name {self.cfg['model_name']}.")
         x = self.avg_pool(x).squeeze()
         x = F.leaky_relu(self.fc1(x))
-        x = self.fc2(x) # (N, num_classes) -> logits
+        x = self.fc2(x) # (N, num_logits) -> logits
         return x

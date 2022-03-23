@@ -22,7 +22,7 @@ def train_epoch(model, optimizer, train_data_loader, class_weights, cfg):
             cross_entropy_loss = torch.nn.CrossEntropyLoss(weight=torch.tensor(class_weights))(yhat, y)
         elif cfg["dataset_name"] == "ptbdb":
             sample_weights = np.array([class_weights[int(label)] for label in y], dtype=np.float32)
-            cross_entropy_loss = torch.nn.BCEWithLogitsLoss(weight=torch.tensor(sample_weights).unsqueeze(-1))(yhat, y.float())
+            cross_entropy_loss = torch.nn.BCEWithLogitsLoss(weight=torch.tensor(sample_weights))(yhat.squeeze(), y.float())
         else:
             raise Exception(f"Not a valid dataset {cfg['dataset_name']}.")
         all_y.append(y.detach().cpu().numpy())
@@ -124,23 +124,23 @@ if __name__ == "__main__":
     parser.add_argument('--dataset_dir', type=str, default='../data')
     parser.add_argument('--checkpoints_dir', type=str, default='../checkpoints')
     parser.add_argument('--dataset_name', type=str, default='mitbih')  # mitbih, ptbdb
-    parser.add_argument('--batch_size', type=int, default=128)
+    parser.add_argument('--batch_size', type=int, default=64)
     parser.add_argument('--num_workers', type=int, default=1)  # 0 means use the same thread for data processing
     parser.add_argument('--model_name', type=str, default='vanilla_rnn')  # vanilla_rnn, lstm_rnn, gru_rnn, vanilla_cnn, residual_cnn
     parser.add_argument('--seed', type=int, default=1337)
     parser.add_argument('--lr', type=int, default=0.001)
     parser.add_argument('--weight_decay', type=int, default=0.0)
     parser.add_argument('--use_lr_scheduler', type=int, default=True)
-    parser.add_argument('--lr_scheduler_patience', type=int, default=8)
-    parser.add_argument('--early_stop_patience', type=int, default=20)
+    parser.add_argument('--lr_scheduler_patience', type=int, default=5)
+    parser.add_argument('--early_stop_patience', type=int, default=15)
     parser.add_argument('--max_epochs', type=int, default=200)
     parser.add_argument('--gradient_max_norm', type=int, default=5.0)
     parser.add_argument('--transfer_learning', action='store_true')
 
     # rnn configs
-    parser.add_argument('--rnn_hidden_size', type=int, default=64)
-    parser.add_argument('--rnn_num_layers', type=int, default=2)
-    parser.add_argument('--rnn_bidirectional', type=bool, default=True)
+    parser.add_argument('--rnn_hidden_size', type=int, default=128)
+    parser.add_argument('--rnn_num_layers', type=int, default=1)
+    parser.add_argument('--rnn_bidirectional', action='store_true')
     parser.add_argument('--rnn_dropout', type=float, default=0.0)
     parser.add_argument('--rnn_freeze', type=str, default="never", help=""" - permanent: train only a new FCNN on top of RNN, """
                                                                         """ - temporary: train only a new FCNN on top of RNN """
@@ -157,7 +157,7 @@ if __name__ == "__main__":
     cfg = parser.parse_args().__dict__
     cfg["experiment_time"] = str(int(time.time()))
 
-    write_and_print_new_log(f"Dataset name: {cfg['dataset_name']}, Model name: {cfg['model_name']}, Transfer learning: {cfg['transfer_learning']}, RNN freeze: {cfg['rnn_freeze']}", cfg)
+    write_and_print_new_log(f"Dataset name: {cfg['dataset_name']}, Model name: {cfg['model_name']}, Transfer learning: {cfg['transfer_learning']}, RNN freeze: {cfg['rnn_freeze']}, RNN Bidirectional: {cfg['rnn_bidirectional']}, RNN Num Layers: {cfg['rnn_num_layers']}", cfg)
 
     if not cfg["transfer_learning"]: # task 1 or 2
         train(cfg, model=None, train_split="train", validation_split="val", test_split="test")
