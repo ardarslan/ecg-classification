@@ -39,7 +39,6 @@ class RNN(nn.Module):
             _, last_cell_hidden_states = self.rnn.forward(X) # (D*n_layers, N, H_out)
         else:
             raise Exception(f"Not a valid model_name {self.cfg['model_name']}.")
-        last_cell_hidden_states = F.relu(last_cell_hidden_states)
         last_cell_hidden_states = last_cell_hidden_states.view(self.cfg["rnn_num_layers"], self.D, N, self.cfg["rnn_hidden_size"])
         last_cell_hidden_states_of_last_layer = last_cell_hidden_states[-1, :, :, :] # (D, N, H_out)
         last_cell_hidden_states_of_last_layer = last_cell_hidden_states_of_last_layer.permute(1, 0, 2).contiguous().view(N, self.rnn_output_size) # (N, D*H_out)
