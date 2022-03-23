@@ -5,7 +5,12 @@ import numpy as np
 import pandas as pd
 import torch
 from scipy.special import expit, softmax
-from sklearn.metrics import accuracy_score, roc_auc_score, average_precision_score, balanced_accuracy_score
+from sklearn.metrics import (
+    accuracy_score,
+    roc_auc_score,
+    average_precision_score,
+    balanced_accuracy_score,
+)
 from model import CNN, RNN
 from dataset import MitbihDataset, PtbdbDataset
 
@@ -18,7 +23,7 @@ def get_data_loader(cfg, split, shuffle):
         Ds = PtbdbDataset
     else:
         raise Exception(f"Not a valid dataset_name {dataset_name}")
-    
+
     dataset = Ds(dataset_dir=cfg["dataset_dir"], split=split, seed=cfg["seed"])
     data_loader = torch.utils.data.DataLoader(
         dataset,
@@ -26,7 +31,7 @@ def get_data_loader(cfg, split, shuffle):
         shuffle=shuffle,
         num_workers=cfg["num_workers"],
         pin_memory=True,
-        drop_last=True
+        drop_last=True,
     )
     return data_loader
 
@@ -35,7 +40,10 @@ def get_checkpoints_dir(cfg):
     model_name = cfg["model_name"]
     if "rnn" in model_name and cfg["rnn_bidirectional"]:
         model_name = "bidirectional_" + model_name
-    checkpoints_dir = os.path.join(cfg["checkpoints_dir"], cfg["dataset_name"] + "_" + model_name + "_" + cfg["experiment_time"])
+    checkpoints_dir = os.path.join(
+        cfg["checkpoints_dir"],
+        cfg["dataset_name"] + "_" + model_name + "_" + cfg["experiment_time"],
+    )
     os.makedirs(checkpoints_dir, exist_ok=True)
     return checkpoints_dir
 
@@ -54,12 +62,18 @@ def save_predictions_to_disk(all_y, all_yhat, split, cfg):
     predictions_path = os.path.join(checkpoints_dir, f"{split}_predictions.txt")
     if cfg["dataset_name"] == "mitbih":
         all_yhat_softmaxed = softmax(all_yhat, axis=1)
-        df = pd.DataFrame(np.hstack((all_yhat_softmaxed, all_y.reshape(-1, 1))), columns=["prob_0", "prob_1", "prob_2", "prob_3", "prob_4", "label"])
+        df = pd.DataFrame(
+            np.hstack((all_yhat_softmaxed, all_y.reshape(-1, 1))),
+            columns=["prob_0", "prob_1", "prob_2", "prob_3", "prob_4", "label"],
+        )
     else:
         logit_1 = all_yhat
         prob_1 = expit(logit_1)
         prob_0 = 1 - prob_1
-        df = pd.DataFrame(np.hstack((prob_0, prob_1, all_y.reshape(-1, 1))), columns=["prob_0", "prob_1", "label"])
+        df = pd.DataFrame(
+            np.hstack((prob_0, prob_1, all_y.reshape(-1, 1))),
+            columns=["prob_0", "prob_1", "label"],
+        )
     df.to_csv(predictions_path, index=False)
 
 
@@ -75,17 +89,22 @@ def get_model(cfg):
     model = model(cfg).to(device)
     write_and_print_new_log(
         f"Total number of trainable parameters in {cfg['model_name']} model: "
-        + str(sum(p.numel() for p in model.parameters() if p.requires_grad)), cfg
+        + str(sum(p.numel() for p in model.parameters() if p.requires_grad)),
+        cfg,
     )
     return model
 
 
 def get_optimizer(cfg, model):
-    return torch.optim.Adam(model.parameters(), lr=cfg["lr"], weight_decay=cfg["weight_decay"])
+    return torch.optim.Adam(
+        model.parameters(), lr=cfg["lr"], weight_decay=cfg["weight_decay"]
+    )
 
 
 def get_scheduler(cfg, optimizer):
-    return torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, patience=cfg["lr_scheduler_patience"], verbose=True)
+    return torch.optim.lr_scheduler.ReduceLROnPlateau(
+        optimizer, patience=cfg["lr_scheduler_patience"], verbose=True
+    )
 
 
 def set_seeds(cfg):
@@ -98,9 +117,7 @@ def set_seeds(cfg):
 def save_checkpoint(model, cfg):
     write_and_print_new_log("Saving the best checkpoint...", cfg)
     checkpoints_dir = get_checkpoints_dir(cfg)
-    checkpoint_dict = {
-        "model_state_dict": model.state_dict()
-    }
+    checkpoint_dict = {"model_state_dict": model.state_dict()}
     torch.save(checkpoint_dict, os.path.join(checkpoints_dir, "best_checkpoint"))
 
 
@@ -113,21 +130,35 @@ def load_checkpoint(cfg):
 
 
 def evaluate_predictions(all_y, all_yhat, class_weights, cfg):
-    sample_weights = np.array([class_weights[int(label)] for label in all_y], dtype=np.float32)
+    sample_weights = np.array(
+        [class_weights[int(label)] for label in all_y], dtype=np.float32
+    )
     result_dict = {}
     if cfg["dataset_name"] == "mitbih":
         all_yhat_argmaxed = np.argmax(all_yhat, axis=1)
         result_dict["unbalanced_acc_score"] = accuracy_score(all_y, all_yhat_argmaxed)
-        result_dict["balanced_acc_score"] = balanced_accuracy_score(all_y, all_yhat_argmaxed)
-        result_dict["cross_entropy_loss"] = float(torch.nn.CrossEntropyLoss(weight=torch.tensor(class_weights))(torch.tensor(all_yhat), torch.tensor(all_y)))
+        result_dict["balanced_acc_score"] = balanced_accuracy_score(
+            all_y, all_yhat_argmaxed
+        )
+        result_dict["cross_entropy_loss"] = float(
+            torch.nn.CrossEntropyLoss(weight=torch.tensor(class_weights))(
+                torch.tensor(all_yhat), torch.tensor(all_y)
+            )
+        )
     elif cfg["dataset_name"] == "ptbdb":
         all_yhat_sigmoided = expit(all_yhat)
         all_yhat_argmaxed = 1 * (all_yhat_sigmoided >= 0.5)
         result_dict["unbalanced_acc_score"] = accuracy_score(all_y, all_yhat_argmaxed)
-        result_dict["balanced_acc_score"] = balanced_accuracy_score(all_y, all_yhat_argmaxed)
+        result_dict["balanced_acc_score"] = balanced_accuracy_score(
+            all_y, all_yhat_argmaxed
+        )
         result_dict["roc_auc_score"] = roc_auc_score(all_y, all_yhat_sigmoided)
         result_dict["pr_auc_score"] = average_precision_score(all_y, all_yhat_sigmoided)
-        result_dict["cross_entropy_loss"] = float(torch.nn.BCEWithLogitsLoss(weight=torch.tensor(sample_weights))(torch.tensor(all_yhat).squeeze(), torch.tensor(all_y).float()))
+        result_dict["cross_entropy_loss"] = float(
+            torch.nn.BCEWithLogitsLoss(weight=torch.tensor(sample_weights))(
+                torch.tensor(all_yhat).squeeze(), torch.tensor(all_y).float()
+            )
+        )
     else:
         raise Exception(f"Not a valid dataset {cfg['dataset']}.")
     return result_dict
