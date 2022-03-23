@@ -80,7 +80,7 @@ class MitbihDataset(Dataset):
         X_test = np.array(df_test[list(range(187))].values)[..., np.newaxis]  # test
         # until here
 
-        self.prepare_X_y(X, Y, X_test, Y_test, val_ratio=0.10)
+        self.prepare_X_y(X, Y, X_test, Y_test, val_ratio=0.15)
 
 
 class PtbdbDataset(Dataset):

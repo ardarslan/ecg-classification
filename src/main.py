@@ -124,7 +124,7 @@ if __name__ == "__main__":
     parser.add_argument('--dataset_dir', type=str, default='../data')
     parser.add_argument('--checkpoints_dir', type=str, default='../checkpoints')
     parser.add_argument('--dataset_name', type=str, default='mitbih')  # mitbih, ptbdb
-    parser.add_argument('--batch_size', type=int, default=128)
+    parser.add_argument('--batch_size', type=int, default=64)
     parser.add_argument('--num_workers', type=int, default=1)  # 0 means use the same thread for data processing
     parser.add_argument('--model_name', type=str, default='vanilla_rnn')  # vanilla_rnn, lstm_rnn, gru_rnn, vanilla_cnn, residual_cnn
     parser.add_argument('--seed', type=int, default=1337)
