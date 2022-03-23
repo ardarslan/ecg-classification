@@ -14,24 +14,29 @@ class Dataset(torch.utils.data.Dataset):
             split (str): train or val
         """
         super().__init__()
+        self.dataset_dir = dataset_dir
+        self.split = split
+        self.seed = seed
     
     def prepare_X_y(self, X, Y, X_test, Y_test, val_ratio):
         X_train_val = X
         y_train_val = Y
         X_test = X_test
         y_test = Y_test
-        X_train, X_val, y_train, y_val = train_test_split(X_train_val, y_train_val, test_size=val_ratio, random_state=seed, stratify=y_train_val)
+        X_train, X_val, y_train, y_val = train_test_split(X_train_val, y_train_val, test_size=val_ratio, random_state=self.seed, stratify=y_train_val)
 
-        if split == "train":
+        if self.split == "train":
             self.X = X_train
             self.y = y_train
-        elif split == "train_val":
+            self.class_weights = compute_class_weight(class_weight="balanced", classes=np.unique(self.y.ravel()), y=self.y.ravel()).astype(np.float32)
+        elif self.split == "train_val":
             self.X = X_train_val
             self.y = y_train_val
-        elif split == "val":
+            self.class_weights = compute_class_weight(class_weight="balanced", classes=np.unique(self.y.ravel()), y=self.y.ravel()).astype(np.float32)
+        elif self.split == "val":
             self.X = X_val
             self.y = y_val
-        elif split == "test":
+        elif self.split == "test":
             self.X = X_test
             self.y = y_test
         else:
@@ -75,7 +80,7 @@ class MitbihDataset(Dataset):
         X_test = np.array(df_test[list(range(187))].values)[..., np.newaxis]  # test
         # until here
 
-        self.prepare_X_y(X, Y, X_test, Y_test, val_ratio=0.15)
+        self.prepare_X_y(X, Y, X_test, Y_test, val_ratio=0.10)
 
 
 class PtbdbDataset(Dataset):
