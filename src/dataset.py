@@ -55,7 +55,7 @@ class Dataset(torch.utils.data.Dataset):
             self.X = X_test
             self.y = y_test
         else:
-            raise Exception(f"Not a valid split {split}.")
+            raise Exception(f"Not a valid split {self.split}.")
 
     def __len__(self):
         """Returns the length of the dataset."""

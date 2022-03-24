@@ -1,10 +1,12 @@
+import os
 import time
-import argparse
 import numpy as np
 import torch
 import torch.nn as nn
+from sklearn.model_selection import train_test_split
 from sklearn.ensemble import GradientBoostingClassifier
 from utils import (
+    get_arugment_parser,
     set_seeds,
     get_model,
     get_optimizer,
@@ -17,6 +19,7 @@ from utils import (
     write_and_print_new_log,
     save_predictions_to_disk,
     pad_signals,
+    ensure_dir_exists,
 )
 
 
@@ -114,9 +117,16 @@ def evaluation_ae_epoch(model, evaluation_data_loader):
     return {"mse_loss": total_mse_loss / len(evaluation_data_loader)}
 
 
-def train(cfg, model, train_split, validation_split):
-    set_seeds(cfg)
+def should_unfreeze_params(cfg, epoch):
+    return (
+        cfg["transfer_learning"]
+        and cfg["dataset_name"] == "ptbdb"
+        and cfg["rnn_freeze"] == "temporary"
+        and cfg["rnn_freeze_num_epochs"] == epoch
+    )
 
+
+def train(cfg, model, train_split, validation_split):
     if not model:
         model = get_model(cfg)
     optimizer = get_optimizer(cfg, model)
@@ -131,13 +141,9 @@ def train(cfg, model, train_split, validation_split):
     best_val_loss = np.inf
     early_stop_counter = 0
     for epoch in range(cfg["max_epochs"]):
-        # if we are in the second training part of transfer learning task and the rule is to unfreeze RNN after rnn_freeze_num_epochs:
-        if (
-            cfg["transfer_learning"]
-            and cfg["dataset_name"] == "ptbdb"
-            and cfg["rnn_freeze"] == "temporary"
-            and cfg["rnn_freeze_num_epochs"] == epoch
-        ):
+        # if we are in the second training part of transfer learning task and
+        # the rule is to unfreeze RNN after rnn_freeze_num_epochs:
+        if should_unfreeze_params(cfg, epoch):
             write_and_print_new_log("Unfreezing weights...", cfg)
             for param in model.parameters():
                 param.requires_grad = True
@@ -187,115 +193,110 @@ def train(cfg, model, train_split, validation_split):
         if early_stop_counter == cfg["early_stop_patience"]:
             break
 
-    # Regular training done, if using Autoencoder, we need to train a
-    # classifier next.
-    if "ae" in cfg["model_name"]:
-        autoencoder = load_checkpoint(cfg)
-        gbc = GradientBoostingClassifier()
+    # Regular training done, unless we are using Autoencoder we just return
+    # best model.
+    if "ae" not in cfg["model_name"]:
+        return load_checkpoint(cfg)
 
-        X, Y, X_test, Y_test = get_data(
-            dataset_name=cfg["dataset_name"],
-            dataset_dir=cfg["dataset_dir"],
-            seed=cfg["seed"],
-        )
+    # If we are using Autoencoder, load and train a classifier on encoded data.
+    autoencoder = load_checkpoint(cfg)
+    gbc = GradientBoostingClassifier(verbose=2)
 
-        def encode(X):
-            X = torch.Tensor(X)
-            # Pad to large enough multiple of 2 so that no loss in dimensionality
-            # through Autoencoder.
-            X = pad_signals(X, 192)
-            X_hat = autoencoder.encode(X)
-            X_hat = torch.squeeze(X_hat)
-            return X_hat.numpy()
+    X, y, X_test, _ = get_data(
+        dataset_name=cfg["dataset_name"],
+        dataset_dir=cfg["dataset_dir"],
+        seed=cfg["seed"],
+    )
 
-        X_hat = encode(X)
-        X_test_hat = encode(X_test)
+    def encode(X):
+        X = torch.Tensor(X)
+        # Pad to large enough multiple of 2 so that no loss in dimensionality
+        # through Autoencoder.
+        X = pad_signals(X, 192)
+        X_hat = autoencoder.encode(X)
+        X_hat = torch.squeeze(X_hat)
+        return X_hat.numpy()
 
-        gbc.fit(X_hat, Y)
-        Y_pred = gbc.predict(X_test_hat)
+    X_hat = encode(X)
+    X_test_hat = encode(X_test)
+
+    gbc.fit(X_hat, y)
+
+    # Save encoded data so it can be easily accessed for predictions.
+    ensure_dir_exists(cfg["ae_output_dir"])
+
+    train_filename = f"{cfg['dataset_name']}_train.csv"
+    test_filename = f"{cfg['dataset_name']}_test.csv"
+
+    np.savetxt(os.path.join(cfg["ae_output_dir"], train_filename), X_hat, delimiter=",")
+    np.savetxt(
+        os.path.join(cfg["ae_output_dir"], test_filename), X_test_hat, delimiter=","
+    )
+
+    return gbc
 
 
 def test(train_split, validation_split, test_split, class_weights):
-    model = load_checkpoint(cfg)
+    if "ae" in cfg["model_name"]:
+        seed = cfg["seed"]
+        dataset_name = cfg["dataset_name"]
+        val_ratio = 0.15 if dataset_name == "mitbih" else 0.2
 
-    train_data_loader = get_data_loader(cfg, split=train_split, shuffle=False)
-    val_data_loader = get_data_loader(cfg, split=validation_split, shuffle=False)
-    test_data_loader = get_data_loader(cfg, split=test_split, shuffle=False)
+        X_train, y_train, X_test, y_test = get_data(
+            dataset_name=dataset_name,
+            dataset_dir=cfg["ae_output_dir"],
+            seed=seed,
+        )
 
-    evaluation_epoch(
-        model, train_data_loader, class_weights, train_split, cfg, save_to_disk=True
-    )
-    evaluation_epoch(
-        model,
-        val_data_loader,
-        class_weights,
-        validation_split,
-        cfg,
-        save_to_disk=True,
-    )
-    test_loss_dict = evaluation_epoch(
-        model, test_data_loader, class_weights, test_split, cfg, save_to_disk=True
-    )
+        X_train, X_val, y_train, y_val = train_test_split(
+            X_train,
+            y_train,
+            test_size=val_ratio,
+            random_state=seed,
+            stratify=y_train,
+        )
 
-    new_log = f"Test {cfg['dataset_name']} | " + ", ".join(
-        [
-            f"{loss_function}: {np.round(loss_value, 3)}"
-            for loss_function, loss_value in test_loss_dict.items()
-        ]
-    )
-    write_and_print_new_log(new_log, cfg)
+        y_hat_train = model.predict(X_train)
+        y_hat_val = model.predict(X_val)
+        y_hat_test = model.predict(X_test)
+
+        save_predictions_to_disk(y_train, y_hat_train, "train", cfg)
+        save_predictions_to_disk(y_val, y_hat_val, "val", cfg)
+        save_predictions_to_disk(y_test, y_hat_test, "test", cfg)
+    else:
+        train_data_loader = get_data_loader(cfg, split=train_split, shuffle=False)
+        val_data_loader = get_data_loader(cfg, split=validation_split, shuffle=False)
+        test_data_loader = get_data_loader(cfg, split=test_split, shuffle=False)
+
+        evaluation_epoch(
+            model, train_data_loader, class_weights, train_split, cfg, save_to_disk=True
+        )
+        evaluation_epoch(
+            model,
+            val_data_loader,
+            class_weights,
+            validation_split,
+            cfg,
+            save_to_disk=True,
+        )
+        test_loss_dict = evaluation_epoch(
+            model, test_data_loader, class_weights, test_split, cfg, save_to_disk=True
+        )
+
+        new_log = f"Test {cfg['dataset_name']} | " + ", ".join(
+            [
+                f"{loss_function}: {np.round(loss_value, 3)}"
+                for loss_function, loss_value in test_loss_dict.items()
+            ]
+        )
+        write_and_print_new_log(new_log, cfg)
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Arguments for running the script")
-
-    parser.add_argument("--dataset_dir", type=str, default="../data")
-    parser.add_argument("--checkpoints_dir", type=str, default="../checkpoints")
-    parser.add_argument("--dataset_name", type=str, default="mitbih")  # mitbih, ptbdb
-    parser.add_argument("--batch_size", type=int, default=64)
-    parser.add_argument(
-        "--num_workers", type=int, default=1
-    )  # 0 means use the same thread for data processing
-    parser.add_argument(
-        "--model_name", type=str, default="vanilla_rnn"
-    )  # vanilla_rnn, lstm_rnn, gru_rnn, vanilla_cnn, residual_cnn
-    parser.add_argument("--seed", type=int, default=1337)
-    parser.add_argument("--lr", type=int, default=0.001)
-    parser.add_argument("--weight_decay", type=int, default=0.0)
-    parser.add_argument("--use_lr_scheduler", type=int, default=True)
-    parser.add_argument("--lr_scheduler_patience", type=int, default=5)
-    parser.add_argument("--early_stop_patience", type=int, default=15)
-    parser.add_argument("--max_epochs", type=int, default=200)
-    parser.add_argument("--gradient_max_norm", type=int, default=5.0)
-    parser.add_argument("--transfer_learning", action="store_true")
-
-    # rnn configs
-    parser.add_argument("--rnn_hidden_size", type=int, default=128)
-    parser.add_argument("--rnn_num_layers", type=int, default=1)
-    parser.add_argument("--rnn_bidirectional", action="store_true")
-    parser.add_argument("--rnn_dropout", type=float, default=0.0)
-    parser.add_argument(
-        "--rnn_freeze",
-        type=str,
-        default="never",
-        help=""" - permanent: train only a new FCNN on top of RNN, """
-        """ - temporary: train only a new FCNN on top of RNN """
-        """ for 'rnn_freeze_num_epochs', after that start training the """
-        """ RNN as well, """
-        """ - never: both RNN and FCNN will be trained from the """
-        """ the beginning of finetuning.""",
-    )
-    parser.add_argument("--rnn_freeze_num_epochs", type=int, default=20)
-
-    # cnn configs
-    parser.add_argument("--cnn_num_layers", type=int, default=4)
-    parser.add_argument("--cnn_num_channels", type=int, default=64)
-
-    # autoencoder configs
-    parser.add_argument("--ae_latent_dim", type=int, default=30)
-
-    cfg = parser.parse_args().__dict__
+    cfg = get_arugment_parser().parse_args().__dict__
     cfg["experiment_time"] = str(int(time.time()))
+
+    set_seeds(cfg)
 
     write_and_print_new_log(
         f"Dataset name: {cfg['dataset_name']}, Model name: {cfg['model_name']}, Transfer learning: {cfg['transfer_learning']}, RNN freeze: {cfg['rnn_freeze']}, RNN Bidirectional: {cfg['rnn_bidirectional']}, RNN Num Layers: {cfg['rnn_num_layers']}",
@@ -303,7 +304,7 @@ if __name__ == "__main__":
     )
 
     if not cfg["transfer_learning"]:  # task 1 or 2
-        train(
+        model = train(
             cfg,
             model=None,
             train_split="train",
@@ -311,7 +312,7 @@ if __name__ == "__main__":
         )
         test(
             cfg,
-            model=None,
+            model=model,
             train_split="train",
             validation_split="val",
             test_split="test",
@@ -323,22 +324,19 @@ if __name__ == "__main__":
         assert (
             "rnn" in cfg["model_name"]
         ), "Transfer learning task was only implemented for RNN."
-        train(
+        model = train(
             cfg,
             model=None,
             train_split="train_val",
             validation_split="test",
         )
-        model = load_checkpoint(cfg)
 
         # freeze all weights if necessary
         if cfg["rnn_freeze"] in ["permanent", "temporary"]:
             write_and_print_new_log("Freezing weights...", cfg)
             for param in model.parameters():
                 param.requires_grad = False
-        elif cfg["rnn_freeze"] == "never":
-            pass
-        else:
+        elif cfg["rnn_freeze"] != "never":
             raise Exception(f"Not a valid rnn_freeze {cfg['rnn_freeze']}.")
 
         # replace FCNN with a suitable one. newly added layer's weights have requires_grad = True by default
@@ -346,7 +344,7 @@ if __name__ == "__main__":
 
         # train and test on ptbdb
         cfg["dataset_name"] = "ptbdb"
-        train(
+        model = train(
             cfg,
             model=model,
             train_split="train",
