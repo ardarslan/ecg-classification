@@ -3,17 +3,20 @@ import argparse
 import numpy as np
 import torch
 import torch.nn as nn
+from sklearn.ensemble import GradientBoostingClassifier
 from utils import (
     set_seeds,
     get_model,
     get_optimizer,
     get_scheduler,
+    get_data,
     get_data_loader,
     save_checkpoint,
     load_checkpoint,
     evaluate_predictions,
     write_and_print_new_log,
     save_predictions_to_disk,
+    pad_signals,
 )
 
 
@@ -50,6 +53,29 @@ def train_epoch(model, optimizer, train_data_loader, class_weights, cfg):
     return train_loss_dict
 
 
+def train_ae_epoch(model, optimizer, train_data_loader, cfg):
+    """Train epoch for Autoencoder."""
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model.train()
+    total_mse_loss = 0.0
+    for batch in train_data_loader:
+        optimizer.zero_grad()
+
+        X = batch["X"].float().to(device)
+        # Pad to large enough multiple of 2 so that no loss in dimensionality
+        # through Autoencoder.
+        X = pad_signals(X, 192)
+        Xhat = model(X)
+
+        mse_loss = torch.nn.MSELoss()(Xhat, X.permute(0, 2, 1))
+        total_mse_loss += float(mse_loss.float())
+        mse_loss.backward()
+
+        nn.utils.clip_grad_norm_(model.parameters(), cfg["gradient_max_norm"])
+        optimizer.step()
+    return {"mse_loss": total_mse_loss / len(train_data_loader)}
+
+
 def evaluation_epoch(
     model, evaluation_data_loader, class_weights, split, cfg, save_to_disk=False
 ):
@@ -71,8 +97,24 @@ def evaluation_epoch(
     return eval_loss_dict
 
 
-def train(cfg, model, train_split, validation_split, test_split):
+def evaluation_ae_epoch(model, evaluation_data_loader):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model.eval()
+    total_mse_loss = 0.0
+    with torch.no_grad():
+        for batch in evaluation_data_loader:
+            X = batch["X"].float().to(device)
+            # Pad to large enough multiple of 2 so that no loss in dimensionality
+            # through Autoencoder.
+            X = pad_signals(X, 192)
+            Xhat = model(X)
+
+            mse_loss = torch.nn.MSELoss()(Xhat, X.permute(0, 2, 1))
+            total_mse_loss += float(mse_loss.float())
+    return {"mse_loss": total_mse_loss / len(evaluation_data_loader)}
+
+
+def train(cfg, model, train_split, validation_split):
     set_seeds(cfg)
 
     if not model:
@@ -101,9 +143,12 @@ def train(cfg, model, train_split, validation_split, test_split):
                 param.requires_grad = True
 
         # train
-        train_loss_dict = train_epoch(
-            model, optimizer, train_data_loader, class_weights, cfg
-        )
+        if "ae" in cfg["model_name"]:
+            train_loss_dict = train_ae_epoch(model, optimizer, train_data_loader, cfg)
+        else:
+            train_loss_dict = train_epoch(
+                model, optimizer, train_data_loader, class_weights, cfg
+            )
         new_log = f"Train {cfg['dataset_name']} | Epoch: {epoch+1}, " + ", ".join(
             [
                 f"{loss_function}: {np.round(loss_value, 3)}"
@@ -113,10 +158,14 @@ def train(cfg, model, train_split, validation_split, test_split):
         write_and_print_new_log(new_log, cfg)
 
         # validate
-        val_loss_dict = evaluation_epoch(
-            model, val_data_loader, class_weights, "val", cfg, save_to_disk=False
-        )
-        current_val_loss = val_loss_dict["cross_entropy_loss"]
+        if "ae" in cfg["model_name"]:
+            val_loss_dict = evaluation_ae_epoch(model, val_data_loader)
+            current_val_loss = val_loss_dict["mse_loss"]
+        else:
+            val_loss_dict = evaluation_epoch(
+                model, val_data_loader, class_weights, "val", cfg, save_to_disk=False
+            )
+            current_val_loss = val_loss_dict["cross_entropy_loss"]
         new_log = f"Validation {cfg['dataset_name']} | Epoch: {epoch+1}, " + ", ".join(
             [
                 f"{loss_function}: {np.round(loss_value, 3)}"
@@ -138,35 +187,63 @@ def train(cfg, model, train_split, validation_split, test_split):
         if early_stop_counter == cfg["early_stop_patience"]:
             break
 
-    if test_split:
-        model = load_checkpoint(cfg)
+    # Regular training done, if using Autoencoder, we need to train a
+    # classifier next.
+    if "ae" in cfg["model_name"]:
+        autoencoder = load_checkpoint(cfg)
+        gbc = GradientBoostingClassifier()
 
-        train_data_loader = get_data_loader(cfg, split=train_split, shuffle=False)
-        val_data_loader = get_data_loader(cfg, split=validation_split, shuffle=False)
-        test_data_loader = get_data_loader(cfg, split=test_split, shuffle=False)
-
-        evaluation_epoch(
-            model, train_data_loader, class_weights, train_split, cfg, save_to_disk=True
-        )
-        evaluation_epoch(
-            model,
-            val_data_loader,
-            class_weights,
-            validation_split,
-            cfg,
-            save_to_disk=True,
-        )
-        test_loss_dict = evaluation_epoch(
-            model, test_data_loader, class_weights, test_split, cfg, save_to_disk=True
+        X, Y, X_test, Y_test = get_data(
+            dataset_name=cfg["dataset_name"],
+            dataset_dir=cfg["dataset_dir"],
+            seed=cfg["seed"],
         )
 
-        new_log = f"Test {cfg['dataset_name']} | " + ", ".join(
-            [
-                f"{loss_function}: {np.round(loss_value, 3)}"
-                for loss_function, loss_value in test_loss_dict.items()
-            ]
-        )
-        write_and_print_new_log(new_log, cfg)
+        def encode(X):
+            X = torch.Tensor(X)
+            # Pad to large enough multiple of 2 so that no loss in dimensionality
+            # through Autoencoder.
+            X = pad_signals(X, 192)
+            X_hat = autoencoder.encode(X)
+            X_hat = torch.squeeze(X_hat)
+            return X_hat.numpy()
+
+        X_hat = encode(X)
+        X_test_hat = encode(X_test)
+
+        gbc.fit(X_hat, Y)
+        Y_pred = gbc.predict(X_test_hat)
+
+
+def test(train_split, validation_split, test_split, class_weights):
+    model = load_checkpoint(cfg)
+
+    train_data_loader = get_data_loader(cfg, split=train_split, shuffle=False)
+    val_data_loader = get_data_loader(cfg, split=validation_split, shuffle=False)
+    test_data_loader = get_data_loader(cfg, split=test_split, shuffle=False)
+
+    evaluation_epoch(
+        model, train_data_loader, class_weights, train_split, cfg, save_to_disk=True
+    )
+    evaluation_epoch(
+        model,
+        val_data_loader,
+        class_weights,
+        validation_split,
+        cfg,
+        save_to_disk=True,
+    )
+    test_loss_dict = evaluation_epoch(
+        model, test_data_loader, class_weights, test_split, cfg, save_to_disk=True
+    )
+
+    new_log = f"Test {cfg['dataset_name']} | " + ", ".join(
+        [
+            f"{loss_function}: {np.round(loss_value, 3)}"
+            for loss_function, loss_value in test_loss_dict.items()
+        ]
+    )
+    write_and_print_new_log(new_log, cfg)
 
 
 if __name__ == "__main__":
@@ -214,6 +291,9 @@ if __name__ == "__main__":
     parser.add_argument("--cnn_num_layers", type=int, default=4)
     parser.add_argument("--cnn_num_channels", type=int, default=64)
 
+    # autoencoder configs
+    parser.add_argument("--ae_latent_dim", type=int, default=30)
+
     cfg = parser.parse_args().__dict__
     cfg["experiment_time"] = str(int(time.time()))
 
@@ -224,6 +304,12 @@ if __name__ == "__main__":
 
     if not cfg["transfer_learning"]:  # task 1 or 2
         train(
+            cfg,
+            model=None,
+            train_split="train",
+            validation_split="val",
+        )
+        test(
             cfg,
             model=None,
             train_split="train",
@@ -242,7 +328,6 @@ if __name__ == "__main__":
             model=None,
             train_split="train_val",
             validation_split="test",
-            test_split=None,
         )
         model = load_checkpoint(cfg)
 
@@ -262,6 +347,12 @@ if __name__ == "__main__":
         # train and test on ptbdb
         cfg["dataset_name"] = "ptbdb"
         train(
+            cfg,
+            model=model,
+            train_split="train",
+            validation_split="val",
+        )
+        test(
             cfg,
             model=model,
             train_split="train",

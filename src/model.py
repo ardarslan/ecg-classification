@@ -117,3 +117,108 @@ class CNN(nn.Module):
         x = F.leaky_relu(self.fc1(x))
         x = self.fc2(x)  # (N, num_logits) -> logits
         return x
+
+
+class Autoencoder(nn.Module):
+    def __init__(self, cfg):
+        super().__init__()
+
+        latent_dim = cfg["ae_latent_dim"]
+
+        ## Encoder ##
+        conv = nn.Conv1d(
+            in_channels=1, out_channels=5, kernel_size=3, stride=2, padding=1
+        )
+        max_pool = nn.MaxPool1d(kernel_size=2)
+        conv2 = nn.Conv1d(
+            in_channels=5, out_channels=15, kernel_size=3, stride=2, padding=1
+        )
+        max_pool2 = nn.MaxPool1d(kernel_size=2)
+        conv3 = nn.Conv1d(
+            in_channels=15, out_channels=30, kernel_size=3, stride=2, padding=1
+        )
+        max_pool3 = nn.MaxPool1d(kernel_size=2)
+        flatten = nn.Flatten()
+        dense = nn.Linear(in_features=90, out_features=latent_dim)
+
+        self.encoder = nn.Sequential(
+            conv,
+            nn.PReLU(),
+            nn.BatchNorm1d(num_features=5),
+            max_pool,
+            conv2,
+            nn.PReLU(),
+            nn.BatchNorm1d(num_features=15),
+            max_pool2,
+            conv3,
+            nn.PReLU(),
+            nn.BatchNorm1d(num_features=30),
+            max_pool3,
+            flatten,
+            dense,
+            nn.Dropout(p=0.1),
+        )
+
+        ## Decoder ##
+        dec_dense = nn.Linear(in_features=latent_dim, out_features=90)
+        reshape = nn.Unflatten(dim=1, unflattened_size=(30, 3))
+        convt3 = nn.ConvTranspose1d(
+            in_channels=30,
+            out_channels=30,
+            kernel_size=3,
+            stride=2,
+            padding=1,
+            output_padding=1,
+        )
+        upsample3 = nn.Upsample(scale_factor=2)
+        convt2 = nn.ConvTranspose1d(
+            in_channels=30,
+            out_channels=15,
+            kernel_size=3,
+            stride=2,
+            padding=1,
+            output_padding=1,
+        )
+        upsample2 = nn.Upsample(scale_factor=2)
+        convt = nn.ConvTranspose1d(
+            in_channels=15,
+            out_channels=5,
+            kernel_size=3,
+            stride=2,
+            padding=1,
+            output_padding=1,
+        )
+        upsample = nn.Upsample(scale_factor=2)
+        convt_final = nn.ConvTranspose1d(
+            in_channels=5, out_channels=1, kernel_size=3, stride=1, padding=1
+        )
+
+        self.decoder = nn.Sequential(
+            dec_dense,
+            nn.PReLU(),
+            nn.Dropout(p=0.1),
+            nn.BatchNorm1d(num_features=90),
+            reshape,
+            convt3,
+            nn.PReLU(),
+            nn.BatchNorm1d(num_features=30),
+            upsample3,
+            convt2,
+            nn.PReLU(),
+            nn.BatchNorm1d(num_features=15),
+            upsample2,
+            convt,
+            nn.PReLU(),
+            nn.BatchNorm1d(num_features=5),
+            upsample,
+            convt_final,
+        )
+
+    def encode(self, x):
+        x = x.permute(0, 2, 1)  # (N, L, C) -> (N, C, L)
+        return self.encoder(x)
+
+    def forward(self, x):
+        encoded = self.encode(x)
+        decoded = self.decoder(encoded)
+        return decoded
