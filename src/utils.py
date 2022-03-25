@@ -147,7 +147,7 @@ def load_checkpoint(cfg):
     return model
 
 
-def evaluate_predictions(all_y, all_yhat, class_weights, cfg):
+def evaluate_predictions(all_y, all_yhat, class_weights, cfg, use_logits=True):
     sample_weights = np.array(
         [class_weights[int(label)] for label in all_y], dtype=np.float32
     )
@@ -158,25 +158,43 @@ def evaluate_predictions(all_y, all_yhat, class_weights, cfg):
         result_dict["balanced_acc_score"] = balanced_accuracy_score(
             all_y, all_yhat_argmaxed
         )
-        result_dict["cross_entropy_loss"] = float(
-            torch.nn.CrossEntropyLoss(weight=torch.tensor(class_weights))(
-                torch.tensor(all_yhat), torch.tensor(all_y)
+        if use_logits:
+            result_dict["cross_entropy_loss"] = float(
+                torch.nn.CrossEntropyLoss(weight=torch.tensor(class_weights))(
+                    torch.tensor(all_yhat), torch.tensor(all_y)
+                )
             )
-        )
     elif cfg["dataset_name"] == "ptbdb":
-        all_yhat_sigmoided = expit(all_yhat)
-        all_yhat_argmaxed = 1 * (all_yhat_sigmoided >= 0.5)
-        result_dict["unbalanced_acc_score"] = accuracy_score(all_y, all_yhat_argmaxed)
-        result_dict["balanced_acc_score"] = balanced_accuracy_score(
-            all_y, all_yhat_argmaxed
-        )
-        result_dict["roc_auc_score"] = roc_auc_score(all_y, all_yhat_sigmoided)
-        result_dict["pr_auc_score"] = average_precision_score(all_y, all_yhat_sigmoided)
-        result_dict["cross_entropy_loss"] = float(
-            torch.nn.BCEWithLogitsLoss(weight=torch.tensor(sample_weights))(
-                torch.tensor(all_yhat).squeeze(), torch.tensor(all_y).float()
+        if use_logits:
+            all_yhat_sigmoided = expit(all_yhat)
+            all_yhat_argmaxed = 1 * (all_yhat_sigmoided >= 0.5)
+            result_dict["unbalanced_acc_score"] = accuracy_score(
+                all_y, all_yhat_argmaxed
             )
-        )
+            result_dict["balanced_acc_score"] = balanced_accuracy_score(
+                all_y, all_yhat_argmaxed
+            )
+            result_dict["roc_auc_score"] = roc_auc_score(all_y, all_yhat_sigmoided)
+            result_dict["pr_auc_score"] = average_precision_score(
+                all_y, all_yhat_sigmoided
+            )
+            result_dict["cross_entropy_loss"] = float(
+                torch.nn.BCEWithLogitsLoss(weight=torch.tensor(sample_weights))(
+                    torch.tensor(all_yhat).squeeze(), torch.tensor(all_y).float()
+                )
+            )
+        else:
+            all_yhat_argmaxed = np.argmax(all_yhat, axis=1)
+            result_dict["unbalanced_acc_score"] = accuracy_score(
+                all_y, all_yhat_argmaxed
+            )
+            result_dict["balanced_acc_score"] = balanced_accuracy_score(
+                all_y, all_yhat_argmaxed
+            )
+            result_dict["roc_auc_score"] = roc_auc_score(all_y, all_yhat_argmaxed)
+            result_dict["pr_auc_score"] = average_precision_score(
+                all_y, all_yhat_argmaxed
+            )
     else:
         raise Exception(f"Not a valid dataset {cfg['dataset']}.")
     return result_dict
