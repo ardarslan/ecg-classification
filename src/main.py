@@ -8,6 +8,7 @@ from sklearn.ensemble import GradientBoostingClassifier
 from dataset import get_data
 from utils import (
     get_argument_parser,
+    get_checkpoints_dir,
     set_seeds,
     get_model,
     get_optimizer,
@@ -223,7 +224,8 @@ def train(cfg, model, train_split, validation_split):
     gbc.fit(X_hat, y)
 
     # Save encoded data so it can be easily accessed for predictions.
-    os.makedirs(cfg["ae_output_dir"], exist_ok=True)
+    output_dir = os.path.join(get_checkpoints_dir(cfg), cfg["ae_output_dir"])
+    os.makedirs(output_dir, exist_ok=True)
 
     # We want to load data later in the same way we did initially, which
     # requires files for ptbdb to have suffixes "normal" and "abnormal".
@@ -234,10 +236,10 @@ def train(cfg, model, train_split, validation_split):
     test_suffix = "train" if cfg["dataset_name"] == "mitbih" else "abnormal"
 
     train_filename = os.path.join(
-        cfg["ae_output_dir"], f"{cfg['dataset_name']}_{train_suffix}.csv"
+        output_dir, f"{cfg['dataset_name']}_{train_suffix}.csv"
     )
     test_filename = os.path.join(
-        cfg["ae_output_dir"], f"{cfg['dataset_name']}_{test_suffix}.csv"
+        output_dir, f"{cfg['dataset_name']}_{test_suffix}.csv"
     )
 
     train_hat = np.hstack((X_hat, y.reshape((X_hat.shape[0], 1))))
@@ -255,9 +257,10 @@ def test(cfg, model, train_split, validation_split, test_split):
         dataset_name = cfg["dataset_name"]
         val_ratio = 0.15 if dataset_name == "mitbih" else 0.2
 
+        encoded_data_dir = os.path.join(get_checkpoints_dir(cfg), cfg["ae_output_dir"])
         X_train, y_train, X_test, y_test = get_data(
             dataset_name=dataset_name,
-            dataset_dir=cfg["ae_output_dir"],
+            dataset_dir=encoded_data_dir,
             data_dim=cfg["ae_latent_dim"],
             seed=seed,
         )
