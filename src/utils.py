@@ -1,6 +1,6 @@
 import os
 import random
-import time
+import argparse
 import numpy as np
 import pandas as pd
 import torch
@@ -11,7 +11,7 @@ from sklearn.metrics import (
     average_precision_score,
     balanced_accuracy_score,
 )
-from model import CNN, RNN,Attention_RNN,InceptionNet
+from model import CNN, RNN, Autoencoder, InceptionNet, AttentionRNN
 from dataset import MitbihDataset, PtbdbDataset
 
 
@@ -61,32 +61,46 @@ def save_predictions_to_disk(all_y, all_yhat, split, cfg):
     checkpoints_dir = get_checkpoints_dir(cfg)
     predictions_path = os.path.join(checkpoints_dir, f"{split}_predictions.txt")
     if cfg["dataset_name"] == "mitbih":
-        all_yhat_softmaxed = softmax(all_yhat, axis=1)
-        df = pd.DataFrame(
-            np.hstack((all_yhat_softmaxed, all_y.reshape(-1, 1))),
-            columns=["prob_0", "prob_1", "prob_2", "prob_3", "prob_4", "label"],
-        )
+        if "ae" in cfg["model_name"]:
+            df = pd.DataFrame(
+                np.hstack((all_yhat, all_y.reshape(-1, 1))),
+                columns=["prob_0", "prob_1", "prob_2", "prob_3", "prob_4", "label"],
+            )
+        else:
+            all_yhat_softmaxed = softmax(all_yhat, axis=1)
+            df = pd.DataFrame(
+                np.hstack((all_yhat_softmaxed, all_y.reshape(-1, 1))),
+                columns=["prob_0", "prob_1", "prob_2", "prob_3", "prob_4", "label"],
+            )
     else:
-        logit_1 = all_yhat
-        prob_1 = expit(logit_1)
-        prob_0 = 1 - prob_1
-        df = pd.DataFrame(
-            np.hstack((prob_0, prob_1, all_y.reshape(-1, 1))),
-            columns=["prob_0", "prob_1", "label"],
-        )
+        if "ae" in cfg["model_name"]:
+            df = pd.DataFrame(
+                np.hstack((all_yhat, all_y.reshape(-1, 1))),
+                columns=["prob_0", "prob_1", "label"],
+            )
+        else:
+            logit_1 = all_yhat
+            prob_1 = expit(logit_1)
+            prob_0 = 1 - prob_1
+            df = pd.DataFrame(
+                np.hstack((prob_0, prob_1, all_y.reshape(-1, 1))),
+                columns=["prob_0", "prob_1", "label"],
+            )
     df.to_csv(predictions_path, index=False)
 
 
 def get_model(cfg):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     if "attention" in cfg["model_name"]:
-        model = Attention_RNN
+        model = AttentionRNN
     elif "inception" in cfg["model_name"]:
         model = InceptionNet
     elif "rnn" in cfg["model_name"]:
         model = RNN
     elif "cnn" in cfg["model_name"]:
         model = CNN
+    elif "ae" in cfg["model_name"]:
+        model = Autoencoder
     else:
         raise Exception(f"Not a valid model_name {cfg['model_name']}.")
 
@@ -166,3 +180,59 @@ def evaluate_predictions(all_y, all_yhat, class_weights, cfg):
     else:
         raise Exception(f"Not a valid dataset {cfg['dataset']}.")
     return result_dict
+
+
+def pad_signals(signals, target_length):
+    return torch.nn.functional.pad(signals, (0, 0, 0, target_length - signals.shape[1]))
+
+
+def get_argument_parser():
+    parser = argparse.ArgumentParser(description="Arguments for running the script")
+
+    parser.add_argument("--dataset_dir", type=str, default="../data")
+    parser.add_argument("--checkpoints_dir", type=str, default="../checkpoints")
+    parser.add_argument("--dataset_name", type=str, default="mitbih")  # mitbih, ptbdb
+    parser.add_argument("--batch_size", type=int, default=64)
+    parser.add_argument(
+        "--num_workers", type=int, default=1
+    )  # 0 means use the same thread for data processing
+    parser.add_argument(
+        "--model_name", type=str, default="vanilla_rnn"
+    )  # vanilla_rnn, lstm_rnn, gru_rnn, vanilla_cnn, residual_cnn
+    parser.add_argument("--seed", type=int, default=1337)
+    parser.add_argument("--lr", type=int, default=0.001)
+    parser.add_argument("--weight_decay", type=int, default=0.0)
+    parser.add_argument("--use_lr_scheduler", type=int, default=True)
+    parser.add_argument("--lr_scheduler_patience", type=int, default=5)
+    parser.add_argument("--early_stop_patience", type=int, default=15)
+    parser.add_argument("--max_epochs", type=int, default=200)
+    parser.add_argument("--gradient_max_norm", type=int, default=5.0)
+    parser.add_argument("--transfer_learning", action="store_true")
+
+    # rnn configs
+    parser.add_argument("--rnn_hidden_size", type=int, default=128)
+    parser.add_argument("--rnn_num_layers", type=int, default=1)
+    parser.add_argument("--rnn_bidirectional", action="store_true")
+    parser.add_argument("--rnn_dropout", type=float, default=0.0)
+    parser.add_argument(
+        "--rnn_freeze",
+        type=str,
+        default="never",
+        help=""" - permanent: train only a new FCNN on top of RNN, """
+        """ - temporary: train only a new FCNN on top of RNN """
+        """ for 'rnn_freeze_num_epochs', after that start training the """
+        """ RNN as well, """
+        """ - never: both RNN and FCNN will be trained from the """
+        """ the beginning of finetuning.""",
+    )
+    parser.add_argument("--rnn_freeze_num_epochs", type=int, default=20)
+
+    # cnn configs
+    parser.add_argument("--cnn_num_layers", type=int, default=4)
+    parser.add_argument("--cnn_num_channels", type=int, default=64)
+
+    # autoencoder configs
+    parser.add_argument("--ae_latent_dim", type=int, default=30)
+    parser.add_argument("--ae_output_dir", type=str, default="data-encoded")
+
+    return parser

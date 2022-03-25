@@ -5,6 +5,45 @@ from sklearn.model_selection import train_test_split
 from sklearn.utils.class_weight import compute_class_weight
 
 
+def get_data(dataset_name, dataset_dir, data_dim, seed):
+    if dataset_name == "mitbih":
+        # copied from baseline file from here
+        df_train = pd.read_csv(f"{dataset_dir}/mitbih_train.csv", header=None)
+        df_train = df_train.sample(frac=1)
+        df_test = pd.read_csv(f"{dataset_dir}/mitbih_test.csv", header=None)
+
+        Y = np.array(df_train[data_dim].values).astype(np.int8)  # train + val
+        X = np.array(df_train[list(range(data_dim))].values)[
+            ..., np.newaxis
+        ]  # train + val
+
+        Y_test = np.array(df_test[data_dim].values).astype(np.int8)  # test
+        X_test = np.array(df_test[list(range(data_dim))].values)[
+            ..., np.newaxis
+        ]  # test
+        # until here
+    elif dataset_name == "ptbdb":
+        # copied from baseline file from here
+        df_1 = pd.read_csv(f"{dataset_dir}/ptbdb_normal.csv", header=None)
+        df_2 = pd.read_csv(f"{dataset_dir}/ptbdb_abnormal.csv", header=None)
+        df = pd.concat([df_1, df_2])
+
+        df_train, df_test = train_test_split(
+            df, test_size=0.2, random_state=seed, stratify=df[data_dim]
+        )
+
+        Y = np.array(df_train[data_dim].values).astype(np.int8)
+        X = np.array(df_train[list(range(data_dim))].values)[..., np.newaxis]
+
+        Y_test = np.array(df_test[data_dim].values).astype(np.int8)
+        X_test = np.array(df_test[list(range(data_dim))].values)[..., np.newaxis]
+        # until here
+    else:
+        raise Exception(f"Not a valid dataset_name {dataset_name}")
+
+    return X, Y, X_test, Y_test
+
+
 class Dataset(torch.utils.data.Dataset):
     def __init__(self, dataset_dir, split, seed):
         """Initialization of the abstract class Dataset.
@@ -54,7 +93,7 @@ class Dataset(torch.utils.data.Dataset):
             self.X = X_test
             self.y = y_test
         else:
-            raise Exception(f"Not a valid split {split}.")
+            raise Exception(f"Not a valid split {self.split}.")
 
     def __len__(self):
         """Returns the length of the dataset."""
@@ -79,17 +118,9 @@ class MitbihDataset(Dataset):
         """
         super().__init__(dataset_dir=dataset_dir, split=split, seed=seed)
 
-        # copied from baseline file from here
-        df_train = pd.read_csv(f"{dataset_dir}/mitbih_train.csv", header=None)
-        df_train = df_train.sample(frac=1)
-        df_test = pd.read_csv(f"{dataset_dir}/mitbih_test.csv", header=None)
-
-        Y = np.array(df_train[187].values).astype(np.int8)  # train + val
-        X = np.array(df_train[list(range(187))].values)[..., np.newaxis]  # train + val
-
-        Y_test = np.array(df_test[187].values).astype(np.int8)  # test
-        X_test = np.array(df_test[list(range(187))].values)[..., np.newaxis]  # test
-        # until here
+        X, Y, X_test, Y_test = get_data(
+            dataset_name="mitbih", dataset_dir=dataset_dir, data_dim=187, seed=seed
+        )
 
         self.prepare_X_y(X, Y, X_test, Y_test, val_ratio=0.15)
 
@@ -104,20 +135,8 @@ class PtbdbDataset(Dataset):
         """
         super().__init__(dataset_dir=dataset_dir, split=split, seed=seed)
 
-        # copied from baseline file from here
-        df_1 = pd.read_csv(f"{dataset_dir}/ptbdb_normal.csv", header=None)
-        df_2 = pd.read_csv(f"{dataset_dir}/ptbdb_abnormal.csv", header=None)
-        df = pd.concat([df_1, df_2])
-
-        df_train, df_test = train_test_split(
-            df, test_size=0.2, random_state=seed, stratify=df[187]
+        X, Y, X_test, Y_test = get_data(
+            dataset_name="ptbdb", dataset_dir=dataset_dir, data_dim=187, seed=seed
         )
-
-        Y = np.array(df_train[187].values).astype(np.int8)
-        X = np.array(df_train[list(range(187))].values)[..., np.newaxis]
-
-        Y_test = np.array(df_test[187].values).astype(np.int8)
-        X_test = np.array(df_test[list(range(187))].values)[..., np.newaxis]
-        # until here
 
         self.prepare_X_y(X, Y, X_test, Y_test, val_ratio=0.20)

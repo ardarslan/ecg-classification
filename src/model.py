@@ -120,9 +120,113 @@ class CNN(nn.Module):
         return x
 
 
+class Autoencoder(nn.Module):
+    def __init__(self, cfg):
+        super().__init__()
 
-class Attention_RNN(nn.Module):
-    def __init__(self,cfg):
+        latent_dim = cfg["ae_latent_dim"]
+
+        ## Encoder ##
+        conv = nn.Conv1d(
+            in_channels=1, out_channels=5, kernel_size=3, stride=2, padding=1
+        )
+        max_pool = nn.MaxPool1d(kernel_size=2)
+        conv2 = nn.Conv1d(
+            in_channels=5, out_channels=15, kernel_size=3, stride=2, padding=1
+        )
+        max_pool2 = nn.MaxPool1d(kernel_size=2)
+        conv3 = nn.Conv1d(
+            in_channels=15, out_channels=30, kernel_size=3, stride=2, padding=1
+        )
+        max_pool3 = nn.MaxPool1d(kernel_size=2)
+        flatten = nn.Flatten()
+        dense = nn.Linear(in_features=90, out_features=latent_dim)
+
+        self.encoder = nn.Sequential(
+            conv,
+            nn.PReLU(),
+            nn.BatchNorm1d(num_features=5),
+            max_pool,
+            conv2,
+            nn.PReLU(),
+            nn.BatchNorm1d(num_features=15),
+            max_pool2,
+            conv3,
+            nn.PReLU(),
+            nn.BatchNorm1d(num_features=30),
+            max_pool3,
+            flatten,
+            dense,
+            nn.Dropout(p=0.1),
+        )
+
+        ## Decoder ##
+        dec_dense = nn.Linear(in_features=latent_dim, out_features=90)
+        reshape = nn.Unflatten(dim=1, unflattened_size=(30, 3))
+        convt3 = nn.ConvTranspose1d(
+            in_channels=30,
+            out_channels=30,
+            kernel_size=3,
+            stride=2,
+            padding=1,
+            output_padding=1,
+        )
+        upsample3 = nn.Upsample(scale_factor=2)
+        convt2 = nn.ConvTranspose1d(
+            in_channels=30,
+            out_channels=15,
+            kernel_size=3,
+            stride=2,
+            padding=1,
+            output_padding=1,
+        )
+        upsample2 = nn.Upsample(scale_factor=2)
+        convt = nn.ConvTranspose1d(
+            in_channels=15,
+            out_channels=5,
+            kernel_size=3,
+            stride=2,
+            padding=1,
+            output_padding=1,
+        )
+        upsample = nn.Upsample(scale_factor=2)
+        convt_final = nn.ConvTranspose1d(
+            in_channels=5, out_channels=1, kernel_size=3, stride=1, padding=1
+        )
+
+        self.decoder = nn.Sequential(
+            dec_dense,
+            nn.PReLU(),
+            nn.Dropout(p=0.1),
+            nn.BatchNorm1d(num_features=90),
+            reshape,
+            convt3,
+            nn.PReLU(),
+            nn.BatchNorm1d(num_features=30),
+            upsample3,
+            convt2,
+            nn.PReLU(),
+            nn.BatchNorm1d(num_features=15),
+            upsample2,
+            convt,
+            nn.PReLU(),
+            nn.BatchNorm1d(num_features=5),
+            upsample,
+            convt_final,
+        )
+
+    def encode(self, x):
+        x = x.permute(0, 2, 1)  # (N, L, C) -> (N, C, L)
+        return self.encoder(x)
+
+    def forward(self, x):
+        encoded = self.encode(x)
+        decoded = self.decoder(encoded)
+        return decoded
+
+
+class AttentionRNN(nn.Module):
+    def __init__(self, cfg):
         super().__init__()
         self.cfg = cfg
         if "vanilla" in cfg["model_name"]:
@@ -143,10 +247,10 @@ class Attention_RNN(nn.Module):
             batch_first=True,
         )
         self.rnn_output_size = self.D * cfg["rnn_hidden_size"]
-        
-        self.dense1 = nn.Linear(self.rnn_output_size,1)
 
-        self.dense2 = nn.Linear(self.rnn_output_size,64)
+        self.dense1 = nn.Linear(self.rnn_output_size, 1)
+
+        self.dense2 = nn.Linear(self.rnn_output_size, 64)
 
         if cfg["dataset_name"] == "ptbdb":
             linear_output_size = 1
@@ -156,7 +260,6 @@ class Attention_RNN(nn.Module):
             raise Exception(f"Not a valid dataset_name {cfg['dataset_name']}.")
         self.dense3 = nn.Linear(64, linear_output_size)
 
-        
     def forward(self, X):
 
         hiddens, _ = self.rnn(X)
@@ -164,29 +267,41 @@ class Attention_RNN(nn.Module):
 
         o = F.relu(self.dense1(hiddens))
 
-        att_weights = F.softmax(o,dim=1)
-        
-        x = torch.sum(hiddens * att_weights,axis=1)
-        
+        att_weights = F.softmax(o, dim=1)
+
+        x = torch.sum(hiddens * att_weights, axis=1)
+
         x = F.relu(self.dense2(x))
         output = self.dense3(x)
-        
+
         return output
 
 
-class Inception_Block_1D(nn.Module):
-    def __init__(self,in_c):
+class InceptionBlock1D(nn.Module):
+    def __init__(self, in_c):
         super().__init__()
-        self.conv_1by1 = nn.Conv1d(in_channels=in_c, out_channels=32, kernel_size=1, padding='same')
+        self.conv_1by1 = nn.Conv1d(
+            in_channels=in_c, out_channels=32, kernel_size=1, padding="same"
+        )
 
-        self.conv_3by3_1 = nn.Conv1d(in_channels=in_c, out_channels=48, kernel_size=1, padding='same')
-        self.conv_3by3_2 = nn.Conv1d(in_channels=48, out_channels=64, kernel_size=3, padding='same')
+        self.conv_3by3_1 = nn.Conv1d(
+            in_channels=in_c, out_channels=48, kernel_size=1, padding="same"
+        )
+        self.conv_3by3_2 = nn.Conv1d(
+            in_channels=48, out_channels=64, kernel_size=3, padding="same"
+        )
 
-        self.conv_5by5_1 = nn.Conv1d(in_channels=in_c, out_channels=8, kernel_size=1, padding='same')
-        self.conv_5by5_2 = nn.Conv1d(in_channels=8, out_channels=16, kernel_size=5, padding='same')
+        self.conv_5by5_1 = nn.Conv1d(
+            in_channels=in_c, out_channels=8, kernel_size=1, padding="same"
+        )
+        self.conv_5by5_2 = nn.Conv1d(
+            in_channels=8, out_channels=16, kernel_size=5, padding="same"
+        )
 
-        self.conv_pool_1 = nn.MaxPool1d(kernel_size=3, stride=1, padding=3//2)
-        self.conv_pool_2 = nn.Conv1d(in_channels=in_c, out_channels=16, kernel_size=1, padding='same')
+        self.conv_pool_1 = nn.MaxPool1d(kernel_size=3, stride=1, padding=3 // 2)
+        self.conv_pool_2 = nn.Conv1d(
+            in_channels=in_c, out_channels=16, kernel_size=1, padding="same"
+        )
 
     def forward(self, X):
 
@@ -195,21 +310,23 @@ class Inception_Block_1D(nn.Module):
         x3 = F.relu(self.conv_5by5_2(F.relu(self.conv_5by5_1(X))))
         x4 = F.relu(self.conv_pool_2(self.conv_pool_1(X)))
 
-        return torch.cat([x1,x2,x3,x4],dim=1)
+        return torch.cat([x1, x2, x3, x4], dim=1)
 
 
 class InceptionNet(nn.Module):
-    def __init__(self,cfg):
+    def __init__(self, cfg):
         super().__init__()
         self.cfg = cfg
-        self.conv1 = nn.Conv1d(in_channels=1, out_channels=16, kernel_size=7, padding='same')
-        self.max_p1= nn.MaxPool1d(kernel_size=2)
-        self.inc1 = Inception_Block_1D(in_c=16)
-        self.max_p2= nn.MaxPool1d(kernel_size=2)
-        self.inc2 = Inception_Block_1D(in_c=128)
-        self.max_p3= nn.MaxPool1d(kernel_size=2)
-        self.inc3 = Inception_Block_1D(in_c=128)
-        self.dense1 = nn.Linear(128,64)
+        self.conv1 = nn.Conv1d(
+            in_channels=1, out_channels=16, kernel_size=7, padding="same"
+        )
+        self.max_p1 = nn.MaxPool1d(kernel_size=2)
+        self.inc1 = InceptionBlock1D(in_c=16)
+        self.max_p2 = nn.MaxPool1d(kernel_size=2)
+        self.inc2 = InceptionBlock1D(in_c=128)
+        self.max_p3 = nn.MaxPool1d(kernel_size=2)
+        self.inc3 = InceptionBlock1D(in_c=128)
+        self.dense1 = nn.Linear(128, 64)
 
         if cfg["dataset_name"] == "ptbdb":
             linear_output_size = 1
@@ -218,9 +335,9 @@ class InceptionNet(nn.Module):
         else:
             raise Exception(f"Not a valid dataset_name {cfg['dataset_name']}.")
         self.dense2 = nn.Linear(64, linear_output_size)
-    
+
     def forward(self, X):
-        x = torch.permute(X,(0,2,1))
+        x = torch.permute(X, (0, 2, 1))
         x = F.relu(self.conv1(x))
         x = self.max_p1(x)
         x = self.inc1(x)
@@ -229,8 +346,8 @@ class InceptionNet(nn.Module):
         x = self.max_p3(x)
         x = self.inc3(x)
 
-        x,_ = torch.max(x,dim=-1) # instead of Flatten()
-        
+        x, _ = torch.max(x, dim=-1)  # instead of Flatten()
+
         x = F.relu(self.dense1(x))
         output = self.dense2(x)
 
