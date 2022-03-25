@@ -1,3 +1,4 @@
+import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
@@ -222,3 +223,132 @@ class Autoencoder(nn.Module):
         encoded = self.encode(x)
         decoded = self.decoder(encoded)
         return decoded
+
+
+class AttentionRNN(nn.Module):
+    def __init__(self, cfg):
+        super().__init__()
+        self.cfg = cfg
+        if "vanilla" in cfg["model_name"]:
+            self.rnn = nn.RNN
+        elif "lstm" in cfg["model_name"]:
+            self.rnn = nn.LSTM
+        elif "gru" in cfg["model_name"]:
+            self.rnn = nn.GRU
+        else:
+            raise Exception(f"Not a valid model_name {cfg['model_name']}.")
+        self.D = 1 + 1 * self.cfg["rnn_bidirectional"]
+        self.rnn = self.rnn(
+            input_size=1,
+            hidden_size=cfg["rnn_hidden_size"],
+            num_layers=cfg["rnn_num_layers"],
+            bidirectional=cfg["rnn_bidirectional"],
+            dropout=cfg["rnn_dropout"],
+            batch_first=True,
+        )
+        self.rnn_output_size = self.D * cfg["rnn_hidden_size"]
+
+        self.dense1 = nn.Linear(self.rnn_output_size, 1)
+
+        self.dense2 = nn.Linear(self.rnn_output_size, 64)
+
+        if cfg["dataset_name"] == "ptbdb":
+            linear_output_size = 1
+        elif cfg["dataset_name"] == "mitbih":
+            linear_output_size = 5
+        else:
+            raise Exception(f"Not a valid dataset_name {cfg['dataset_name']}.")
+        self.dense3 = nn.Linear(64, linear_output_size)
+
+    def forward(self, X):
+
+        hiddens, _ = self.rnn(X)
+        hiddens = F.relu(hiddens)
+
+        o = F.relu(self.dense1(hiddens))
+
+        att_weights = F.softmax(o, dim=1)
+
+        x = torch.sum(hiddens * att_weights, axis=1)
+
+        x = F.relu(self.dense2(x))
+        output = self.dense3(x)
+
+        return output
+
+
+class InceptionBlock1D(nn.Module):
+    def __init__(self, in_c):
+        super().__init__()
+        self.conv_1by1 = nn.Conv1d(
+            in_channels=in_c, out_channels=32, kernel_size=1, padding="same"
+        )
+
+        self.conv_3by3_1 = nn.Conv1d(
+            in_channels=in_c, out_channels=48, kernel_size=1, padding="same"
+        )
+        self.conv_3by3_2 = nn.Conv1d(
+            in_channels=48, out_channels=64, kernel_size=3, padding="same"
+        )
+
+        self.conv_5by5_1 = nn.Conv1d(
+            in_channels=in_c, out_channels=8, kernel_size=1, padding="same"
+        )
+        self.conv_5by5_2 = nn.Conv1d(
+            in_channels=8, out_channels=16, kernel_size=5, padding="same"
+        )
+
+        self.conv_pool_1 = nn.MaxPool1d(kernel_size=3, stride=1, padding=3 // 2)
+        self.conv_pool_2 = nn.Conv1d(
+            in_channels=in_c, out_channels=16, kernel_size=1, padding="same"
+        )
+
+    def forward(self, X):
+
+        x1 = F.relu(self.conv_1by1(X))
+        x2 = F.relu(self.conv_3by3_2(F.relu(self.conv_3by3_1(X))))
+        x3 = F.relu(self.conv_5by5_2(F.relu(self.conv_5by5_1(X))))
+        x4 = F.relu(self.conv_pool_2(self.conv_pool_1(X)))
+
+        return torch.cat([x1, x2, x3, x4], dim=1)
+
+
+class InceptionNet(nn.Module):
+    def __init__(self, cfg):
+        super().__init__()
+        self.cfg = cfg
+        self.conv1 = nn.Conv1d(
+            in_channels=1, out_channels=16, kernel_size=7, padding="same"
+        )
+        self.max_p1 = nn.MaxPool1d(kernel_size=2)
+        self.inc1 = InceptionBlock1D(in_c=16)
+        self.max_p2 = nn.MaxPool1d(kernel_size=2)
+        self.inc2 = InceptionBlock1D(in_c=128)
+        self.max_p3 = nn.MaxPool1d(kernel_size=2)
+        self.inc3 = InceptionBlock1D(in_c=128)
+        self.dense1 = nn.Linear(128, 64)
+
+        if cfg["dataset_name"] == "ptbdb":
+            linear_output_size = 1
+        elif cfg["dataset_name"] == "mitbih":
+            linear_output_size = 5
+        else:
+            raise Exception(f"Not a valid dataset_name {cfg['dataset_name']}.")
+        self.dense2 = nn.Linear(64, linear_output_size)
+
+    def forward(self, X):
+        x = torch.permute(X, (0, 2, 1))
+        x = F.relu(self.conv1(x))
+        x = self.max_p1(x)
+        x = self.inc1(x)
+        x = self.max_p2(x)
+        x = self.inc2(x)
+        x = self.max_p3(x)
+        x = self.inc3(x)
+
+        x, _ = torch.max(x, dim=-1)  # instead of Flatten()
+
+        x = F.relu(self.dense1(x))
+        output = self.dense2(x)
+
+        return output

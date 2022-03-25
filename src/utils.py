@@ -11,7 +11,7 @@ from sklearn.metrics import (
     average_precision_score,
     balanced_accuracy_score,
 )
-from model import CNN, RNN, Autoencoder
+from model import CNN, RNN, Autoencoder, InceptionNet, AttentionRNN
 from dataset import MitbihDataset, PtbdbDataset
 
 
@@ -91,7 +91,11 @@ def save_predictions_to_disk(all_y, all_yhat, split, cfg):
 
 def get_model(cfg):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    if "rnn" in cfg["model_name"]:
+    if "attention" in cfg["model_name"]:
+        model = AttentionRNN
+    elif "inception" in cfg["model_name"]:
+        model = InceptionNet
+    elif "rnn" in cfg["model_name"]:
         model = RNN
     elif "cnn" in cfg["model_name"]:
         model = CNN
