@@ -221,7 +221,7 @@ def train(cfg, model, train_split, validation_split):
     X_hat = encode(X)
     X_test_hat = encode(X_test)
 
-    gbc.fit(X_hat[:100], y[:100])
+    gbc.fit(X_hat, y)
 
     # Save encoded data so it can be easily accessed for predictions.
     output_dir = os.path.join(get_checkpoints_dir(cfg), cfg["ae_output_dir"])
