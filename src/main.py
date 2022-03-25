@@ -285,14 +285,12 @@ def test(cfg, model, train_split, validation_split, test_split):
         val_data_loader = get_data_loader(cfg, split=validation_split, shuffle=False)
         test_data_loader = get_data_loader(cfg, split=test_split, shuffle=False)
 
-        train_class_weights = train_data_loader.dataset.class_weights
-        val_class_weights = val_data_loader.dataset.class_weights
-        test_class_weights = test_data_loader.dataset.class_weights
+        class_weights = train_data_loader.dataset.class_weights
 
         evaluation_epoch(
             model,
             train_data_loader,
-            train_class_weights,
+            class_weights,
             train_split,
             cfg,
             save_to_disk=True,
@@ -300,7 +298,7 @@ def test(cfg, model, train_split, validation_split, test_split):
         evaluation_epoch(
             model,
             val_data_loader,
-            val_class_weights,
+            class_weights,
             validation_split,
             cfg,
             save_to_disk=True,
@@ -308,7 +306,7 @@ def test(cfg, model, train_split, validation_split, test_split):
         test_loss_dict = evaluation_epoch(
             model,
             test_data_loader,
-            test_class_weights,
+            class_weights,
             test_split,
             cfg,
             save_to_disk=True,
