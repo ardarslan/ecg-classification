@@ -11,44 +11,8 @@ from sklearn.metrics import (
     average_precision_score,
     balanced_accuracy_score,
 )
-from sklearn.model_selection import train_test_split
 from model import CNN, RNN, Autoencoder
 from dataset import MitbihDataset, PtbdbDataset
-
-
-def get_data(dataset_name, dataset_dir, seed):
-    if dataset_name == "mitbih":
-        # copied from baseline file from here
-        df_train = pd.read_csv(f"{dataset_dir}/mitbih_train.csv", header=None)
-        df_train = df_train.sample(frac=1)
-        df_test = pd.read_csv(f"{dataset_dir}/mitbih_test.csv", header=None)
-
-        Y = np.array(df_train[187].values).astype(np.int8)  # train + val
-        X = np.array(df_train[list(range(187))].values)[..., np.newaxis]  # train + val
-
-        Y_test = np.array(df_test[187].values).astype(np.int8)  # test
-        X_test = np.array(df_test[list(range(187))].values)[..., np.newaxis]  # test
-        # until here
-    elif dataset_name == "ptbdb":
-        # copied from baseline file from here
-        df_1 = pd.read_csv(f"{dataset_dir}/ptbdb_normal.csv", header=None)
-        df_2 = pd.read_csv(f"{dataset_dir}/ptbdb_abnormal.csv", header=None)
-        df = pd.concat([df_1, df_2])
-
-        df_train, df_test = train_test_split(
-            df, test_size=0.2, random_state=seed, stratify=df[187]
-        )
-
-        Y = np.array(df_train[187].values).astype(np.int8)
-        X = np.array(df_train[list(range(187))].values)[..., np.newaxis]
-
-        Y_test = np.array(df_test[187].values).astype(np.int8)
-        X_test = np.array(df_test[list(range(187))].values)[..., np.newaxis]
-        # until here
-    else:
-        raise Exception(f"Not a valid dataset_name {dataset_name}")
-
-    return X, Y, X_test, Y_test
 
 
 def get_data_loader(cfg, split, shuffle):
@@ -97,19 +61,31 @@ def save_predictions_to_disk(all_y, all_yhat, split, cfg):
     checkpoints_dir = get_checkpoints_dir(cfg)
     predictions_path = os.path.join(checkpoints_dir, f"{split}_predictions.txt")
     if cfg["dataset_name"] == "mitbih":
-        all_yhat_softmaxed = softmax(all_yhat, axis=1)
-        df = pd.DataFrame(
-            np.hstack((all_yhat_softmaxed, all_y.reshape(-1, 1))),
-            columns=["prob_0", "prob_1", "prob_2", "prob_3", "prob_4", "label"],
-        )
+        if "ae" in cfg["model_name"]:
+            df = pd.DataFrame(
+                np.hstack((all_yhat, all_y.reshape(-1, 1))),
+                columns=["prob_0", "prob_1", "prob_2", "prob_3", "prob_4", "label"],
+            )
+        else:
+            all_yhat_softmaxed = softmax(all_yhat, axis=1)
+            df = pd.DataFrame(
+                np.hstack((all_yhat_softmaxed, all_y.reshape(-1, 1))),
+                columns=["prob_0", "prob_1", "prob_2", "prob_3", "prob_4", "label"],
+            )
     else:
-        logit_1 = all_yhat
-        prob_1 = expit(logit_1)
-        prob_0 = 1 - prob_1
-        df = pd.DataFrame(
-            np.hstack((prob_0, prob_1, all_y.reshape(-1, 1))),
-            columns=["prob_0", "prob_1", "label"],
-        )
+        if "ae" in cfg["model_name"]:
+            df = pd.DataFrame(
+                np.hstack((all_yhat, all_y.reshape(-1, 1))),
+                columns=["prob_0", "prob_1", "label"],
+            )
+        else:
+            logit_1 = all_yhat
+            prob_1 = expit(logit_1)
+            prob_0 = 1 - prob_1
+            df = pd.DataFrame(
+                np.hstack((prob_0, prob_1, all_y.reshape(-1, 1))),
+                columns=["prob_0", "prob_1", "label"],
+            )
     df.to_csv(predictions_path, index=False)
 
 
@@ -206,12 +182,7 @@ def pad_signals(signals, target_length):
     return torch.nn.functional.pad(signals, (0, 0, 0, target_length - signals.shape[1]))
 
 
-def ensure_dir_exists(dir):
-    if not os.path.exists(dir):
-        os.makedirs(dir)
-
-
-def get_arugment_parser():
+def get_argument_parser():
     parser = argparse.ArgumentParser(description="Arguments for running the script")
 
     parser.add_argument("--dataset_dir", type=str, default="../data")

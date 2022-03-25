@@ -5,13 +5,13 @@ import torch
 import torch.nn as nn
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import GradientBoostingClassifier
+from dataset import get_data
 from utils import (
-    get_arugment_parser,
+    get_argument_parser,
     set_seeds,
     get_model,
     get_optimizer,
     get_scheduler,
-    get_data,
     get_data_loader,
     save_checkpoint,
     load_checkpoint,
@@ -19,7 +19,6 @@ from utils import (
     write_and_print_new_log,
     save_predictions_to_disk,
     pad_signals,
-    ensure_dir_exists,
 )
 
 
@@ -202,9 +201,10 @@ def train(cfg, model, train_split, validation_split):
     autoencoder = load_checkpoint(cfg)
     gbc = GradientBoostingClassifier(verbose=2)
 
-    X, y, X_test, _ = get_data(
+    X, y, X_test, y_test = get_data(
         dataset_name=cfg["dataset_name"],
         dataset_dir=cfg["dataset_dir"],
+        data_dim=187,
         seed=cfg["seed"],
     )
 
@@ -215,28 +215,41 @@ def train(cfg, model, train_split, validation_split):
         X = pad_signals(X, 192)
         X_hat = autoencoder.encode(X)
         X_hat = torch.squeeze(X_hat)
-        return X_hat.numpy()
+        return X_hat.detach().numpy()
 
     X_hat = encode(X)
     X_test_hat = encode(X_test)
 
-    gbc.fit(X_hat, y)
+    gbc.fit(X_hat[:100], y[:100])
 
     # Save encoded data so it can be easily accessed for predictions.
-    ensure_dir_exists(cfg["ae_output_dir"])
+    os.makedirs(cfg["ae_output_dir"], exist_ok=True)
 
-    train_filename = f"{cfg['dataset_name']}_train.csv"
-    test_filename = f"{cfg['dataset_name']}_test.csv"
+    # We want to load data later in the same way we did initially, which
+    # requires files for ptbdb to have suffixes "normal" and "abnormal".
+    # Since at this point the two are mixed and when loaded will be mixed
+    # again, the two file names have no special meaning and are purely for
+    # consistency.
+    train_suffix = "train" if cfg["dataset_name"] == "mitbih" else "normal"
+    test_suffix = "train" if cfg["dataset_name"] == "mitbih" else "abnormal"
 
-    np.savetxt(os.path.join(cfg["ae_output_dir"], train_filename), X_hat, delimiter=",")
-    np.savetxt(
-        os.path.join(cfg["ae_output_dir"], test_filename), X_test_hat, delimiter=","
+    train_filename = os.path.join(
+        cfg["ae_output_dir"], f"{cfg['dataset_name']}_{train_suffix}.csv"
     )
+    test_filename = os.path.join(
+        cfg["ae_output_dir"], f"{cfg['dataset_name']}_{test_suffix}.csv"
+    )
+
+    train_hat = np.hstack((X_hat, y.reshape((X_hat.shape[0], 1))))
+    test_hat = np.hstack((X_test_hat, y_test.reshape((X_test_hat.shape[0], 1))))
+
+    np.savetxt(train_filename, train_hat, delimiter=",")
+    np.savetxt(test_filename, test_hat, delimiter=",")
 
     return gbc
 
 
-def test(train_split, validation_split, test_split, class_weights):
+def test(cfg, model, train_split, validation_split, test_split):
     if "ae" in cfg["model_name"]:
         seed = cfg["seed"]
         dataset_name = cfg["dataset_name"]
@@ -245,8 +258,12 @@ def test(train_split, validation_split, test_split, class_weights):
         X_train, y_train, X_test, y_test = get_data(
             dataset_name=dataset_name,
             dataset_dir=cfg["ae_output_dir"],
+            data_dim=cfg["ae_latent_dim"],
             seed=seed,
         )
+
+        X_train = np.squeeze(X_train)
+        X_test = np.squeeze(X_test)
 
         X_train, X_val, y_train, y_val = train_test_split(
             X_train,
@@ -256,9 +273,9 @@ def test(train_split, validation_split, test_split, class_weights):
             stratify=y_train,
         )
 
-        y_hat_train = model.predict(X_train)
-        y_hat_val = model.predict(X_val)
-        y_hat_test = model.predict(X_test)
+        y_hat_train = model.predict_proba(X_train)
+        y_hat_val = model.predict_proba(X_val)
+        y_hat_test = model.predict_proba(X_test)
 
         save_predictions_to_disk(y_train, y_hat_train, "train", cfg)
         save_predictions_to_disk(y_val, y_hat_val, "val", cfg)
@@ -268,19 +285,33 @@ def test(train_split, validation_split, test_split, class_weights):
         val_data_loader = get_data_loader(cfg, split=validation_split, shuffle=False)
         test_data_loader = get_data_loader(cfg, split=test_split, shuffle=False)
 
+        train_class_weights = train_data_loader.dataset.class_weights
+        val_class_weights = val_data_loader.dataset.class_weights
+        test_class_weights = test_data_loader.dataset.class_weights
+
         evaluation_epoch(
-            model, train_data_loader, class_weights, train_split, cfg, save_to_disk=True
+            model,
+            train_data_loader,
+            train_class_weights,
+            train_split,
+            cfg,
+            save_to_disk=True,
         )
         evaluation_epoch(
             model,
             val_data_loader,
-            class_weights,
+            val_class_weights,
             validation_split,
             cfg,
             save_to_disk=True,
         )
         test_loss_dict = evaluation_epoch(
-            model, test_data_loader, class_weights, test_split, cfg, save_to_disk=True
+            model,
+            test_data_loader,
+            test_class_weights,
+            test_split,
+            cfg,
+            save_to_disk=True,
         )
 
         new_log = f"Test {cfg['dataset_name']} | " + ", ".join(
@@ -293,7 +324,7 @@ def test(train_split, validation_split, test_split, class_weights):
 
 
 if __name__ == "__main__":
-    cfg = get_arugment_parser().parse_args().__dict__
+    cfg = get_argument_parser().parse_args().__dict__
     cfg["experiment_time"] = str(int(time.time()))
 
     set_seeds(cfg)
