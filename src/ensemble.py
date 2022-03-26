@@ -112,7 +112,7 @@ def get_majority_prediction(X: pd.DataFrame) -> pd.Series:
     return X.mode(axis=1)[0]
 
 
-def save_predictions(labels: np.ndarray, preds: np.ndarray, split, cfg):
+def save_majority_preds_to_disk(labels: np.ndarray, preds: np.ndarray, split, cfg):
     checkpoints_dir = get_checkpoints_dir(cfg)
     predictions_path = os.path.join(checkpoints_dir, f"{split}_predictions.txt")
     df = pd.DataFrame(
@@ -143,8 +143,7 @@ def eval_ensemble_preds(labels: np.ndarray, preds: np.ndarray, cfg: dict) -> dic
 def run_ensemble(cfg: dict) -> None:
 
     X_train, y_train, X_val, y_val, X_test, y_test = create_ensemble_datasets(
-        cfg,
-        excluded_models=[]
+        cfg, excluded_models=[]
     )
 
     if "majority_ensemble" == cfg["model_name"]:
@@ -152,9 +151,9 @@ def run_ensemble(cfg: dict) -> None:
         y_hat_val = get_majority_prediction(X_val).to_numpy().reshape(-1, 1)
         y_hat_test = get_majority_prediction(X_test).to_numpy().reshape(-1, 1)
 
-        save_predictions(y_train.to_numpy(), y_hat_train, "train", cfg)
-        save_predictions(y_val.to_numpy(), y_hat_val, "val", cfg)
-        save_predictions(y_test.to_numpy(), y_hat_test, "test", cfg)
+        save_majority_preds_to_disk(y_train.to_numpy(), y_hat_train, "train", cfg)
+        save_majority_preds_to_disk(y_val.to_numpy(), y_hat_val, "val", cfg)
+        save_majority_preds_to_disk(y_test.to_numpy(), y_hat_test, "test", cfg)
     elif "log_reg_ensemble" == cfg["model_name"]:
         log_reg = LogisticRegression(random_state=cfg["seed"], max_iter=1e5)
         log_reg.fit(X_train, y_train)
@@ -163,9 +162,15 @@ def run_ensemble(cfg: dict) -> None:
         y_hat_val = log_reg.predict_proba(X_val)
         y_hat_test = log_reg.predict_proba(X_test)
 
-        save_predictions_to_disk(y_train.to_numpy(), y_hat_train, "train", cfg)
-        save_predictions_to_disk(y_val.to_numpy(), y_hat_val, "val", cfg)
-        save_predictions_to_disk(y_test.to_numpy(), y_hat_test, "test", cfg)
+        save_predictions_to_disk(
+            y_train.to_numpy(), y_hat_train, "train", cfg, use_logits=False
+        )
+        save_predictions_to_disk(
+            y_val.to_numpy(), y_hat_val, "val", cfg, use_logits=False
+        )
+        save_predictions_to_disk(
+            y_test.to_numpy(), y_hat_test, "test", cfg, use_logits=False
+        )
 
     # Need to map predictions to probabilities for AUROC and AUPRC. We
     # simply predict probability 1.0 for the voted majority class.

@@ -57,45 +57,27 @@ def write_and_print_new_log(new_log, cfg):
         f.write(new_log + "\n")
 
 
-def save_predictions_to_disk(all_y, all_yhat, split, cfg):
+def save_predictions_to_disk(all_y, all_yhat, split, cfg, use_logits):
     checkpoints_dir = get_checkpoints_dir(cfg)
     predictions_path = os.path.join(checkpoints_dir, f"{split}_predictions.txt")
     if cfg["dataset_name"] == "mitbih":
-        if "ae" in cfg["model_name"]:
-            df = pd.DataFrame(
-                np.hstack((all_yhat, all_y.reshape(-1, 1))),
-                columns=["prob_0", "prob_1", "prob_2", "prob_3", "prob_4", "label"],
-            )
-        elif "ensemble" in cfg["model_name"]:
-            df = pd.DataFrame(
-                np.hstack((all_yhat, all_y.reshape(-1, 1))),
-                columns=["prob_0", "prob_1", "prob_2", "prob_3", "prob_4", "label"],
-            )
+        if use_logits:
+            all_yhat_probs = softmax(all_yhat, axis=1)
         else:
-            all_yhat_softmaxed = softmax(all_yhat, axis=1)
-            df = pd.DataFrame(
-                np.hstack((all_yhat_softmaxed, all_y.reshape(-1, 1))),
-                columns=["prob_0", "prob_1", "prob_2", "prob_3", "prob_4", "label"],
-            )
+            all_yhat_probs = all_yhat
+        columns = ["prob_0", "prob_1", "prob_2", "prob_3", "prob_4", "label"]
     else:
-        if "ae" in cfg["model_name"]:
-            df = pd.DataFrame(
-                np.hstack((all_yhat, all_y.reshape(-1, 1))),
-                columns=["prob_0", "prob_1", "label"],
-            )
-        elif "ensemble" in cfg["model_name"]:
-            df = pd.DataFrame(
-                np.hstack((all_yhat, all_y.reshape(-1, 1))),
-                columns=["prob_0", "prob_1", "label"],
-            )
-        else:
+        if use_logits:
             logit_1 = all_yhat
             prob_1 = expit(logit_1)
             prob_0 = 1 - prob_1
-            df = pd.DataFrame(
-                np.hstack((prob_0, prob_1, all_y.reshape(-1, 1))),
-                columns=["prob_0", "prob_1", "label"],
-            )
+            all_yhat_probs = np.hstack((prob_0, prob_1))
+        else:
+            all_yhat_probs = all_yhat
+        columns = ["prob_0", "prob_1", "label"]
+    df = pd.DataFrame(
+        np.hstack((all_yhat_probs, all_y.reshape(-1, 1))), columns=columns
+    )
     df.to_csv(predictions_path, index=False)
 
 
@@ -163,30 +145,37 @@ def evaluate_predictions(all_y, all_yhat, class_weights, cfg):
     )
     result_dict = {}
     if cfg["dataset_name"] == "mitbih":
-        all_yhat_argmaxed = np.argmax(all_yhat, axis=1)
+        if use_logits:
+            all_yhat_probs = softmax(all_yhat, axis=1)
+            result_dict["cross_entropy_loss"] = float(
+                torch.nn.CrossEntropyLoss(weight=torch.tensor(class_weights))(
+                    torch.tensor(all_yhat), torch.tensor(all_y)
+                )
+            )
+        else:
+            all_yhat_probs = all_yhat
+        all_yhat_argmaxed = np.argmax(all_yhat_probs, axis=1)
         result_dict["unbalanced_acc_score"] = accuracy_score(all_y, all_yhat_argmaxed)
         result_dict["balanced_acc_score"] = balanced_accuracy_score(
             all_y, all_yhat_argmaxed
-        )
-        result_dict["cross_entropy_loss"] = float(
-            torch.nn.CrossEntropyLoss(weight=torch.tensor(class_weights))(
-                torch.tensor(all_yhat), torch.tensor(all_y)
-            )
         )
     elif cfg["dataset_name"] == "ptbdb":
-        all_yhat_sigmoided = expit(all_yhat)
-        all_yhat_argmaxed = 1 * (all_yhat_sigmoided >= 0.5)
+        if use_logits:
+            all_yhat_probs = expit(all_yhat)
+            result_dict["cross_entropy_loss"] = float(
+                torch.nn.BCEWithLogitsLoss(weight=torch.tensor(sample_weights))(
+                    torch.tensor(all_yhat).squeeze(), torch.tensor(all_y).float()
+                )
+            )
+        else:
+            all_yhat_probs = all_yhat
+        all_yhat_argmaxed = 1 * (all_yhat_probs >= 0.5)
         result_dict["unbalanced_acc_score"] = accuracy_score(all_y, all_yhat_argmaxed)
         result_dict["balanced_acc_score"] = balanced_accuracy_score(
             all_y, all_yhat_argmaxed
         )
-        result_dict["roc_auc_score"] = roc_auc_score(all_y, all_yhat_sigmoided)
-        result_dict["pr_auc_score"] = average_precision_score(all_y, all_yhat_sigmoided)
-        result_dict["cross_entropy_loss"] = float(
-            torch.nn.BCEWithLogitsLoss(weight=torch.tensor(sample_weights))(
-                torch.tensor(all_yhat).squeeze(), torch.tensor(all_y).float()
-            )
-        )
+        result_dict["roc_auc_score"] = roc_auc_score(all_y, all_yhat_probs)
+        result_dict["pr_auc_score"] = average_precision_score(all_y, all_yhat_probs)
     else:
         raise Exception(f"Not a valid dataset {cfg['dataset']}.")
     return result_dict

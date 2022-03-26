@@ -1,0 +1,37 @@
+Dataset name: mitbih, Model name: vanilla_rnn, Transfer learning: False, RNN freeze: never, RNN Bidirectional: False, RNN Num Layers: 1
+Total number of trainable parameters in vanilla_rnn model: 17413
+Train mitbih | Epoch: 1, unbalanced_acc_score: 0.455, balanced_acc_score: 0.233, cross_entropy_loss: 1.592
+Validation mitbih | Epoch: 1, unbalanced_acc_score: 0.064, balanced_acc_score: 0.288, cross_entropy_loss: 1.52
+Saving the best checkpoint...
+Train mitbih | Epoch: 2, unbalanced_acc_score: 0.483, balanced_acc_score: 0.263, cross_entropy_loss: 1.561
+Validation mitbih | Epoch: 2, unbalanced_acc_score: 0.085, balanced_acc_score: 0.236, cross_entropy_loss: 1.573
+Train mitbih | Epoch: 3, unbalanced_acc_score: 0.399, balanced_acc_score: 0.26, cross_entropy_loss: 1.563
+Validation mitbih | Epoch: 3, unbalanced_acc_score: 0.098, balanced_acc_score: 0.263, cross_entropy_loss: 1.56
+Train mitbih | Epoch: 4, unbalanced_acc_score: 0.363, balanced_acc_score: 0.267, cross_entropy_loss: 1.558
+Validation mitbih | Epoch: 4, unbalanced_acc_score: 0.052, balanced_acc_score: 0.259, cross_entropy_loss: 1.542
+Train mitbih | Epoch: 5, unbalanced_acc_score: 0.351, balanced_acc_score: 0.262, cross_entropy_loss: 1.561
+Validation mitbih | Epoch: 5, unbalanced_acc_score: 0.816, balanced_acc_score: 0.255, cross_entropy_loss: 1.571
+Train mitbih | Epoch: 6, unbalanced_acc_score: 0.379, balanced_acc_score: 0.258, cross_entropy_loss: 1.566
+Validation mitbih | Epoch: 6, unbalanced_acc_score: 0.828, balanced_acc_score: 0.2, cross_entropy_loss: 1.637
+Train mitbih | Epoch: 7, unbalanced_acc_score: 0.324, balanced_acc_score: 0.204, cross_entropy_loss: 1.627
+Validation mitbih | Epoch: 7, unbalanced_acc_score: 0.076, balanced_acc_score: 0.22, cross_entropy_loss: 1.629
+Train mitbih | Epoch: 8, unbalanced_acc_score: 0.625, balanced_acc_score: 0.205, cross_entropy_loss: 1.621
+Validation mitbih | Epoch: 8, unbalanced_acc_score: 0.827, balanced_acc_score: 0.219, cross_entropy_loss: 1.615
+Train mitbih | Epoch: 9, unbalanced_acc_score: 0.643, balanced_acc_score: 0.215, cross_entropy_loss: 1.615
+Validation mitbih | Epoch: 9, unbalanced_acc_score: 0.076, balanced_acc_score: 0.22, cross_entropy_loss: 1.61
+Train mitbih | Epoch: 10, unbalanced_acc_score: 0.624, balanced_acc_score: 0.222, cross_entropy_loss: 1.611
+Validation mitbih | Epoch: 10, unbalanced_acc_score: 0.066, balanced_acc_score: 0.213, cross_entropy_loss: 1.612
+Train mitbih | Epoch: 11, unbalanced_acc_score: 0.718, balanced_acc_score: 0.224, cross_entropy_loss: 1.604
+Validation mitbih | Epoch: 11, unbalanced_acc_score: 0.806, balanced_acc_score: 0.228, cross_entropy_loss: 1.604
+Train mitbih | Epoch: 12, unbalanced_acc_score: 0.369, balanced_acc_score: 0.214, cross_entropy_loss: 1.638
+Validation mitbih | Epoch: 12, unbalanced_acc_score: 0.428, balanced_acc_score: 0.235, cross_entropy_loss: 1.64
+Train mitbih | Epoch: 13, unbalanced_acc_score: 0.376, balanced_acc_score: 0.218, cross_entropy_loss: 1.626
+Validation mitbih | Epoch: 13, unbalanced_acc_score: 0.358, balanced_acc_score: 0.226, cross_entropy_loss: 1.619
+Train mitbih | Epoch: 14, unbalanced_acc_score: 0.415, balanced_acc_score: 0.231, cross_entropy_loss: 1.621
+Validation mitbih | Epoch: 14, unbalanced_acc_score: 0.426, balanced_acc_score: 0.238, cross_entropy_loss: 1.618
+Train mitbih | Epoch: 15, unbalanced_acc_score: 0.422, balanced_acc_score: 0.235, cross_entropy_loss: 1.617
+Validation mitbih | Epoch: 15, unbalanced_acc_score: 0.412, balanced_acc_score: 0.207, cross_entropy_loss: 1.629
+Train mitbih | Epoch: 16, unbalanced_acc_score: 0.406, balanced_acc_score: 0.228, cross_entropy_loss: 1.621
+Validation mitbih | Epoch: 16, unbalanced_acc_score: 0.379, balanced_acc_score: 0.226, cross_entropy_loss: 1.619
+Total number of trainable parameters in vanilla_rnn model: 17413
+Test mitbih | unbalanced_acc_score: 0.06, balanced_acc_score: 0.269, cross_entropy_loss: 1.527
