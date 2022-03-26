@@ -66,6 +66,11 @@ def save_predictions_to_disk(all_y, all_yhat, split, cfg):
                 np.hstack((all_yhat, all_y.reshape(-1, 1))),
                 columns=["prob_0", "prob_1", "prob_2", "prob_3", "prob_4", "label"],
             )
+        elif "ensemble" in cfg["model_name"]:
+            df = pd.DataFrame(
+                np.hstack((all_yhat, all_y.reshape(-1, 1))),
+                columns=["prob_0", "prob_1", "prob_2", "prob_3", "prob_4", "label"],
+            )
         else:
             all_yhat_softmaxed = softmax(all_yhat, axis=1)
             df = pd.DataFrame(
@@ -74,6 +79,11 @@ def save_predictions_to_disk(all_y, all_yhat, split, cfg):
             )
     else:
         if "ae" in cfg["model_name"]:
+            df = pd.DataFrame(
+                np.hstack((all_yhat, all_y.reshape(-1, 1))),
+                columns=["prob_0", "prob_1", "label"],
+            )
+        elif "ensemble" in cfg["model_name"]:
             df = pd.DataFrame(
                 np.hstack((all_yhat, all_y.reshape(-1, 1))),
                 columns=["prob_0", "prob_1", "label"],
