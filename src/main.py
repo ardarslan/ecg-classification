@@ -24,25 +24,29 @@ from utils import (
 
 
 def train_epoch(model, optimizer, train_data_loader, class_weights, cfg):
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.train()
     all_y = []
     all_yhat = []
     for batch in train_data_loader:
         optimizer.zero_grad()
-        X, y = batch["X"].float().to(device), batch["y"].long().to(device)
+        X, y = (
+            batch["X"].float().to(cfg["device"]),
+            batch["y"].long().to(cfg["device"]),
+        )
         yhat = model(X)
         if cfg["dataset_name"] == "mitbih":
-            cross_entropy_loss = torch.nn.CrossEntropyLoss(
-                weight=torch.tensor(class_weights)
-            )(yhat, y)
-        elif cfg["dataset_name"] == "ptbdb":
-            sample_weights = np.array(
-                [class_weights[int(label)] for label in y], dtype=np.float32
+            cross_entropy_loss = torch.nn.CrossEntropyLoss(weight=class_weights)(
+                yhat, y
             )
-            cross_entropy_loss = torch.nn.BCEWithLogitsLoss(
-                weight=torch.tensor(sample_weights)
-            )(yhat.squeeze(), y.float())
+        elif cfg["dataset_name"] == "ptbdb":
+            sample_weights = torch.tensor(
+                [class_weights[int(label)] for label in y],
+                dtype=torch.float,
+                device=cfg["device"],
+            )
+            cross_entropy_loss = torch.nn.BCEWithLogitsLoss(weight=sample_weights)(
+                yhat.squeeze(), y
+            )
         else:
             raise Exception(f"Not a valid dataset {cfg['dataset_name']}.")
         all_y.append(y.detach().cpu().numpy())
@@ -60,20 +64,19 @@ def train_epoch(model, optimizer, train_data_loader, class_weights, cfg):
 
 def train_ae_epoch(model, optimizer, train_data_loader, cfg):
     """Train epoch for Autoencoder."""
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.train()
     total_mse_loss = 0.0
     for batch in train_data_loader:
         optimizer.zero_grad()
 
-        X = batch["X"].float().to(device)
+        X = batch["X"].float().to(cfg["device"])
         # Pad to large enough multiple of 2 so that no loss in dimensionality
         # through Autoencoder.
         X = pad_signals(X, 192)
         Xhat = model(X)
 
         mse_loss = torch.nn.MSELoss()(Xhat, X.permute(0, 2, 1))
-        total_mse_loss += float(mse_loss.float())
+        total_mse_loss += float(mse_loss)
         mse_loss.backward()
 
         nn.utils.clip_grad_norm_(model.parameters(), cfg["gradient_max_norm"])
@@ -84,13 +87,15 @@ def train_ae_epoch(model, optimizer, train_data_loader, cfg):
 def evaluation_epoch(
     model, evaluation_data_loader, class_weights, split, cfg, save_to_disk=False
 ):
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.eval()
     with torch.no_grad():
         all_y = []
         all_yhat = []
         for batch in evaluation_data_loader:
-            X, y = batch["X"].float().to(device), batch["y"].long().to(device)
+            X, y = (
+                batch["X"].float().to(cfg["device"]),
+                batch["y"].long().to(cfg["device"]),
+            )
             yhat = model(X)
             all_y.append(y.detach().cpu().numpy())
             all_yhat.append(yhat.detach().cpu().numpy())
@@ -105,12 +110,11 @@ def evaluation_epoch(
 
 
 def evaluation_ae_epoch(model, evaluation_data_loader):
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.eval()
     total_mse_loss = 0.0
     with torch.no_grad():
         for batch in evaluation_data_loader:
-            X = batch["X"].float().to(device)
+            X = batch["X"].float().to(cfg["device"])
             # Pad to large enough multiple of 2 so that no loss in dimensionality
             # through Autoencoder.
             X = pad_signals(X, 192)
@@ -334,7 +338,7 @@ def test(cfg, model, train_split, validation_split, test_split):
 if __name__ == "__main__":
     cfg = get_argument_parser().parse_args().__dict__
     cfg["experiment_time"] = str(int(time.time()))
-
+    cfg["device"] = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     set_seeds(cfg)
 
     write_and_print_new_log(

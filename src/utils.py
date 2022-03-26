@@ -24,7 +24,7 @@ def get_data_loader(cfg, split, shuffle):
     else:
         raise Exception(f"Not a valid dataset_name {dataset_name}")
 
-    dataset = Ds(dataset_dir=cfg["dataset_dir"], split=split, seed=cfg["seed"])
+    dataset = Ds(dataset_dir=cfg["dataset_dir"], split=split, seed=cfg["seed"], cfg=cfg)
     data_loader = torch.utils.data.DataLoader(
         dataset,
         batch_size=cfg["batch_size"],
@@ -82,7 +82,6 @@ def save_predictions_to_disk(all_y, all_yhat, split, cfg, use_logits):
 
 
 def get_model(cfg):
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     if "attention" in cfg["model_name"]:
         model = AttentionRNN
     elif "inception" in cfg["model_name"]:
@@ -96,7 +95,7 @@ def get_model(cfg):
     else:
         raise Exception(f"Not a valid model_name {cfg['model_name']}.")
 
-    model = model(cfg).to(device)
+    model = model(cfg).to(cfg["device"])
     write_and_print_new_log(
         f"Total number of trainable parameters in {cfg['model_name']} model: "
         + str(sum(p.numel() for p in model.parameters() if p.requires_grad)),
@@ -139,17 +138,20 @@ def load_checkpoint(cfg):
     return model
 
 
-def evaluate_predictions(all_y, all_yhat, class_weights, cfg):
-    sample_weights = np.array(
-        [class_weights[int(label)] for label in all_y], dtype=np.float32
+def evaluate_predictions(all_y, all_yhat, class_weights, cfg, use_logits):
+    sample_weights = torch.tensor(
+        [class_weights[int(label)] for label in all_y],
+        dtype=torch.float,
+        device=cfg["device"],
     )
     result_dict = {}
     if cfg["dataset_name"] == "mitbih":
         if use_logits:
             all_yhat_probs = softmax(all_yhat, axis=1)
             result_dict["cross_entropy_loss"] = float(
-                torch.nn.CrossEntropyLoss(weight=torch.tensor(class_weights))(
-                    torch.tensor(all_yhat), torch.tensor(all_y)
+                torch.nn.CrossEntropyLoss(weight=class_weights)(
+                    torch.tensor(all_yhat, device=cfg["device"], dtype=torch.float),
+                    torch.tensor(all_y, device=cfg["device"], dtype=torch.long),
                 )
             )
         else:
@@ -163,8 +165,11 @@ def evaluate_predictions(all_y, all_yhat, class_weights, cfg):
         if use_logits:
             all_yhat_probs = expit(all_yhat)
             result_dict["cross_entropy_loss"] = float(
-                torch.nn.BCEWithLogitsLoss(weight=torch.tensor(sample_weights))(
-                    torch.tensor(all_yhat).squeeze(), torch.tensor(all_y).float()
+                torch.nn.BCEWithLogitsLoss(weight=sample_weights)(
+                    torch.tensor(
+                        all_yhat, device=cfg["device"], dtype=torch.float
+                    ).squeeze(),
+                    torch.tensor(all_y, device=cfg["device"], dtype=torch.long),
                 )
             )
         else:
