@@ -45,7 +45,7 @@ def get_data(dataset_name, dataset_dir, data_dim, seed):
 
 
 class Dataset(torch.utils.data.Dataset):
-    def __init__(self, dataset_dir, split, seed):
+    def __init__(self, dataset_dir, split, seed, cfg):
         """Initialization of the abstract class Dataset.
 
         Args:
@@ -56,6 +56,7 @@ class Dataset(torch.utils.data.Dataset):
         self.dataset_dir = dataset_dir
         self.split = split
         self.seed = seed
+        self.cfg = cfg
 
     def prepare_X_y(self, X, Y, X_test, Y_test, val_ratio):
         X_train_val = X
@@ -73,19 +74,27 @@ class Dataset(torch.utils.data.Dataset):
         if self.split == "train":
             self.X = X_train
             self.y = y_train
-            self.class_weights = compute_class_weight(
-                class_weight="balanced",
-                classes=np.unique(self.y.ravel()),
-                y=self.y.ravel(),
-            ).astype(np.float32)
+            self.class_weights = torch.tensor(
+                compute_class_weight(
+                    class_weight="balanced",
+                    classes=np.unique(self.y.ravel()),
+                    y=self.y.ravel(),
+                ),
+                dtype=torch.float,
+                device=self.cfg["device"],
+            )
         elif self.split == "train_val":
             self.X = X_train_val
             self.y = y_train_val
-            self.class_weights = compute_class_weight(
-                class_weight="balanced",
-                classes=np.unique(self.y.ravel()),
-                y=self.y.ravel(),
-            ).astype(np.float32)
+            self.class_weights = torch.tensor(
+                compute_class_weight(
+                    class_weight="balanced",
+                    classes=np.unique(self.y.ravel()),
+                    y=self.y.ravel(),
+                ),
+                dtype=torch.float,
+                device=self.cfg["device"],
+            )
         elif self.split == "val":
             self.X = X_val
             self.y = y_val
@@ -109,14 +118,14 @@ class Dataset(torch.utils.data.Dataset):
 
 
 class MitbihDataset(Dataset):
-    def __init__(self, dataset_dir, split, seed):
+    def __init__(self, dataset_dir, split, seed, cfg):
         """Initialization of the Mitbih dataset.
 
         Args:
             dataset_dir (str): path to the directory in which the .csv files are located
             split (str): train or val
         """
-        super().__init__(dataset_dir=dataset_dir, split=split, seed=seed)
+        super().__init__(dataset_dir=dataset_dir, split=split, seed=seed, cfg=cfg)
 
         X, Y, X_test, Y_test = get_data(
             dataset_name="mitbih", dataset_dir=dataset_dir, data_dim=187, seed=seed
@@ -126,14 +135,14 @@ class MitbihDataset(Dataset):
 
 
 class PtbdbDataset(Dataset):
-    def __init__(self, dataset_dir, split, seed):
+    def __init__(self, dataset_dir, split, seed, cfg):
         """Initialization of the Ptbdb dataset.
 
         Args:
             dataset_dir (str): path to the directory in which the .csv files are located
             split (str): train or val
         """
-        super().__init__(dataset_dir=dataset_dir, split=split, seed=seed)
+        super().__init__(dataset_dir=dataset_dir, split=split, seed=seed, cfg=cfg)
 
         X, Y, X_test, Y_test = get_data(
             dataset_name="ptbdb", dataset_dir=dataset_dir, data_dim=187, seed=seed
