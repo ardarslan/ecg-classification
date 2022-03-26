@@ -154,6 +154,11 @@ def run_ensemble(cfg: dict) -> None:
         save_majority_preds_to_disk(y_train.to_numpy(), y_hat_train, "train", cfg)
         save_majority_preds_to_disk(y_val.to_numpy(), y_hat_val, "val", cfg)
         save_majority_preds_to_disk(y_test.to_numpy(), y_hat_test, "test", cfg)
+
+        # Need to map predictions to probabilities for AUROC and AUPRC. We
+        # simply predict probability 1.0 for the voted majority class.
+        if "ptbdb" == cfg["dataset_name"]:
+            y_hat_test = np.hstack((1 - y_hat_test, y_hat_test))
     elif "log_reg_ensemble" == cfg["model_name"]:
         log_reg = LogisticRegression(random_state=cfg["seed"], max_iter=1e5)
         log_reg.fit(X_train, y_train)
@@ -171,11 +176,6 @@ def run_ensemble(cfg: dict) -> None:
         save_predictions_to_disk(
             y_test.to_numpy(), y_hat_test, "test", cfg, use_logits=False
         )
-
-    # Need to map predictions to probabilities for AUROC and AUPRC. We
-    # simply predict probability 1.0 for the voted majority class.
-    if "ptbdb" == cfg["dataset_name"]:
-        y_hat_test = np.hstack((1 - y_hat_test, y_hat_test))
 
     test_loss_dict = eval_ensemble_preds(y_test.to_numpy(), y_hat_test, cfg)
 
