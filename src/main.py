@@ -52,7 +52,9 @@ def train_epoch(model, optimizer, train_data_loader, class_weights, cfg):
         optimizer.step()
     all_y = np.concatenate(all_y, axis=0)
     all_yhat = np.concatenate(all_yhat, axis=0).astype(np.float32)
-    train_loss_dict = evaluate_predictions(all_y, all_yhat, class_weights, cfg)
+    train_loss_dict = evaluate_predictions(
+        all_y, all_yhat, class_weights, cfg, use_logits=True
+    )
     return train_loss_dict
 
 
@@ -95,8 +97,10 @@ def evaluation_epoch(
         all_y = np.concatenate(all_y, axis=0)
         all_yhat = np.concatenate(all_yhat, axis=0).astype(np.float32)
         if save_to_disk:
-            save_predictions_to_disk(all_y, all_yhat, split, cfg)
-        eval_loss_dict = evaluate_predictions(all_y, all_yhat, class_weights, cfg)
+            save_predictions_to_disk(all_y, all_yhat, split, cfg, use_logits=True)
+        eval_loss_dict = evaluate_predictions(
+            all_y, all_yhat, class_weights, cfg, use_logits=True
+        )
     return eval_loss_dict
 
 
@@ -233,14 +237,12 @@ def train(cfg, model, train_split, validation_split):
     # again, the two file names have no special meaning and are purely for
     # consistency.
     train_suffix = "train" if cfg["dataset_name"] == "mitbih" else "normal"
-    test_suffix = "train" if cfg["dataset_name"] == "mitbih" else "abnormal"
+    test_suffix = "test" if cfg["dataset_name"] == "mitbih" else "abnormal"
 
     train_filename = os.path.join(
         output_dir, f"{cfg['dataset_name']}_{train_suffix}.csv"
     )
-    test_filename = os.path.join(
-        output_dir, f"{cfg['dataset_name']}_{test_suffix}.csv"
-    )
+    test_filename = os.path.join(output_dir, f"{cfg['dataset_name']}_{test_suffix}.csv")
 
     train_hat = np.hstack((X_hat, y.reshape((X_hat.shape[0], 1))))
     test_hat = np.hstack((X_test_hat, y_test.reshape((X_test_hat.shape[0], 1))))
@@ -269,20 +271,30 @@ def test(cfg, model, train_split, validation_split, test_split):
         X_test = np.squeeze(X_test)
 
         X_train, X_val, y_train, y_val = train_test_split(
-            X_train,
-            y_train,
-            test_size=val_ratio,
-            random_state=seed,
-            stratify=y_train,
+            X_train, y_train, test_size=val_ratio, random_state=seed, stratify=y_train,
         )
 
         y_hat_train = model.predict_proba(X_train)
         y_hat_val = model.predict_proba(X_val)
         y_hat_test = model.predict_proba(X_test)
 
-        save_predictions_to_disk(y_train, y_hat_train, "train", cfg)
-        save_predictions_to_disk(y_val, y_hat_val, "val", cfg)
-        save_predictions_to_disk(y_test, y_hat_test, "test", cfg)
+        if cfg["model"] == "ptbdb":
+            y_hat_train = y_hat_train[:, 1]
+            y_hat_val = y_hat_val[:, 1]
+            y_hat_test = y_hat_test[:, 1]
+
+        train_data_loader = get_data_loader(cfg, split=train_split, shuffle=False)
+        test_loss_dict = evaluate_predictions(
+            y_test,
+            y_hat_test,
+            train_data_loader.dataset.class_weights,
+            cfg,
+            use_logits=False,
+        )
+
+        save_predictions_to_disk(y_train, y_hat_train, "train", cfg, use_logits=False)
+        save_predictions_to_disk(y_val, y_hat_val, "val", cfg, use_logits=False)
+        save_predictions_to_disk(y_test, y_hat_test, "test", cfg, use_logits=False)
     else:
         train_data_loader = get_data_loader(cfg, split=train_split, shuffle=False)
         val_data_loader = get_data_loader(cfg, split=validation_split, shuffle=False)
@@ -307,21 +319,16 @@ def test(cfg, model, train_split, validation_split, test_split):
             save_to_disk=True,
         )
         test_loss_dict = evaluation_epoch(
-            model,
-            test_data_loader,
-            class_weights,
-            test_split,
-            cfg,
-            save_to_disk=True,
+            model, test_data_loader, class_weights, test_split, cfg, save_to_disk=True,
         )
 
-        new_log = f"Test {cfg['dataset_name']} | " + ", ".join(
-            [
-                f"{loss_function}: {np.round(loss_value, 3)}"
-                for loss_function, loss_value in test_loss_dict.items()
-            ]
-        )
-        write_and_print_new_log(new_log, cfg)
+    new_log = f"Test {cfg['dataset_name']} | " + ", ".join(
+        [
+            f"{loss_function}: {np.round(loss_value, 3)}"
+            for loss_function, loss_value in test_loss_dict.items()
+        ]
+    )
+    write_and_print_new_log(new_log, cfg)
 
 
 if __name__ == "__main__":
@@ -336,12 +343,7 @@ if __name__ == "__main__":
     )
 
     if not cfg["transfer_learning"]:  # task 1 or 2
-        model = train(
-            cfg,
-            model=None,
-            train_split="train",
-            validation_split="val",
-        )
+        model = train(cfg, model=None, train_split="train", validation_split="val",)
         test(
             cfg,
             model=model,
@@ -357,10 +359,7 @@ if __name__ == "__main__":
             "rnn" in cfg["model_name"]
         ), "Transfer learning task was only implemented for RNN."
         model = train(
-            cfg,
-            model=None,
-            train_split="train_val",
-            validation_split="test",
+            cfg, model=None, train_split="train_val", validation_split="test",
         )
 
         # freeze all weights if necessary
@@ -376,12 +375,7 @@ if __name__ == "__main__":
 
         # train and test on ptbdb
         cfg["dataset_name"] = "ptbdb"
-        model = train(
-            cfg,
-            model=model,
-            train_split="train",
-            validation_split="val",
-        )
+        model = train(cfg, model=model, train_split="train", validation_split="val",)
         test(
             cfg,
             model=model,
