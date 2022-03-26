@@ -1,3 +1,4 @@
+cd src
 bsub -n 2 -W 4:00 -R "rusage[mem=4096, ngpus_excl_p=1]" python main.py --dataset_name mitbih --model_name vanilla_rnn
 bsub -n 2 -W 4:00 -R "rusage[mem=4096, ngpus_excl_p=1]" python main.py --dataset_name mitbih --model_name lstm_rnn
 bsub -n 2 -W 4:00 -R "rusage[mem=4096, ngpus_excl_p=1]" python main.py --dataset_name mitbih --model_name vanilla_rnn --rnn_bidirectional
