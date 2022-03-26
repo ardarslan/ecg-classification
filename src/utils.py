@@ -30,7 +30,7 @@ def get_data_loader(cfg, split, shuffle):
         batch_size=cfg["batch_size"],
         shuffle=shuffle,
         num_workers=cfg["num_workers"],
-        pin_memory=True,
+        pin_memory=False,
         drop_last=True,
     )
     return data_loader
