@@ -44,9 +44,3 @@ bsub -n 2 -W 4:00 -R "rusage[mem=4096, ngpus_excl_p=1]" python main.py --dataset
 bsub -n 2 -W 4:00 -R "rusage[mem=4096, ngpus_excl_p=1]" python main.py --dataset_name ptbdb --model_name lstm_rnn --transfer_learning --rnn_freeze never
 bsub -n 2 -W 4:00 -R "rusage[mem=4096, ngpus_excl_p=1]" python main.py --dataset_name ptbdb --model_name vanilla_rnn --rnn_bidirectional --transfer_learning --rnn_freeze never
 bsub -n 2 -W 4:00 -R "rusage[mem=4096, ngpus_excl_p=1]" python main.py --dataset_name ptbdb --model_name lstm_rnn --rnn_bidirectional --transfer_learning --rnn_freeze never
-
-bsub -n 2 -W 4:00 -R "rusage[mem=4096, ngpus_excl_p=1]" python ensemble.py --dataset_name mitbih --model_name majority_ensemble
-bsub -n 2 -W 4:00 -R "rusage[mem=4096, ngpus_excl_p=1]" python ensemble.py --dataset_name mitbih --model_name log_reg_ensemble
-
-bsub -n 2 -W 4:00 -R "rusage[mem=4096, ngpus_excl_p=1]" python ensemble.py --dataset_name ptbdb --model_name majority_ensemble
-bsub -n 2 -W 4:00 -R "rusage[mem=4096, ngpus_excl_p=1]" python ensemble.py --dataset_name ptbdb --model_name log_reg_ensemble
