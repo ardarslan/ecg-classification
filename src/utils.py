@@ -40,9 +40,13 @@ def get_checkpoints_dir(cfg):
     model_name = cfg["model_name"]
     if "rnn" in model_name and cfg["rnn_bidirectional"]:
         model_name = "bidirectional_" + model_name
+    if cfg["transfer_learning"]:
+        dataset_name = "ptbdb"
+    else:
+        dataset_name = cfg["dataset_name"]
     checkpoints_dir = os.path.join(
         cfg["checkpoints_dir"],
-        cfg["dataset_name"] + "_" + model_name + "_" + cfg["experiment_time"],
+        dataset_name + "_" + model_name + "_" + cfg["experiment_time"],
     )
     os.makedirs(checkpoints_dir, exist_ok=True)
     return checkpoints_dir

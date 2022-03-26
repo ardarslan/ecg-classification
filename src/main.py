@@ -375,7 +375,7 @@ if __name__ == "__main__":
             raise Exception(f"Not a valid rnn_freeze {cfg['rnn_freeze']}.")
 
         # replace FCNN with a suitable one. newly added layer's weights have requires_grad = True by default
-        model.fc = nn.Linear(model.rnn_output_size, 1)
+        model.fc = nn.Linear(model.rnn_output_size, 1, device=cfg["device"])
 
         # train and test on ptbdb
         cfg["dataset_name"] = "ptbdb"
