@@ -47,9 +47,7 @@ def predict_max_prob(preds: pd.DataFrame) -> pd.DataFrame:
     return max_prob_preds
 
 
-def load_predictions(
-    dir: str,
-) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+def load_predictions(dir: str,) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     train_pred = pd.read_csv(os.path.join(dir, "train_predictions.txt"))
     val_pred = pd.read_csv(os.path.join(dir, "val_predictions.txt"))
     test_pred = pd.read_csv(os.path.join(dir, "test_predictions.txt"))
@@ -116,8 +114,7 @@ def save_majority_preds_to_disk(labels: np.ndarray, preds: np.ndarray, split, cf
     checkpoints_dir = get_checkpoints_dir(cfg)
     predictions_path = os.path.join(checkpoints_dir, f"{split}_predictions.txt")
     df = pd.DataFrame(
-        np.hstack((preds, labels.reshape(-1, 1))),
-        columns=["preds", "label"],
+        np.hstack((preds, labels.reshape(-1, 1))), columns=["preds", "label"],
     )
     df.to_csv(predictions_path, index=False)
 
@@ -167,14 +164,23 @@ def run_ensemble(cfg: dict) -> None:
         y_hat_val = log_reg.predict_proba(X_val)
         y_hat_test = log_reg.predict_proba(X_test)
 
+        if cfg["dataset_name"] == "ptbdb":
+            y_hat_train_save = y_hat_train[:, 1:]
+            y_hat_val_save = y_hat_val[:, 1:]
+            y_hat_test_save = y_hat_test[:, 1:]
+        else:
+            y_hat_train_save = y_hat_train
+            y_hat_val_save = y_hat_val
+            y_hat_test_save = y_hat_test
+
         save_predictions_to_disk(
-            y_train.to_numpy(), y_hat_train, "train", cfg, use_logits=False
+            y_train.to_numpy(), y_hat_train_save, "train", cfg, use_logits=False
         )
         save_predictions_to_disk(
-            y_val.to_numpy(), y_hat_val, "val", cfg, use_logits=False
+            y_val.to_numpy(), y_hat_val_save, "val", cfg, use_logits=False
         )
         save_predictions_to_disk(
-            y_test.to_numpy(), y_hat_test, "test", cfg, use_logits=False
+            y_test.to_numpy(), y_hat_test_save, "test", cfg, use_logits=False
         )
 
     test_loss_dict = eval_ensemble_preds(y_test.to_numpy(), y_hat_test, cfg)

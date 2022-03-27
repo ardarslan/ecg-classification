@@ -11,7 +11,7 @@ from sklearn.metrics import (
     average_precision_score,
     balanced_accuracy_score,
 )
-from model import CNN, RNN, Autoencoder, InceptionNet, AttentionRNN
+from model import CNN, RNN, Autoencoder, InceptionNet, SharedMLPOverRNN
 from dataset import MitbihDataset, PtbdbDataset
 
 
@@ -74,10 +74,11 @@ def save_predictions_to_disk(all_y, all_yhat, split, cfg, use_logits):
         if use_logits:
             logit_1 = all_yhat
             prob_1 = expit(logit_1)
-            prob_0 = 1 - prob_1
-            all_yhat_probs = np.hstack((prob_0, prob_1))
         else:
-            all_yhat_probs = all_yhat
+            prob_1 = all_yhat
+
+        prob_0 = 1 - prob_1
+        all_yhat_probs = np.hstack((prob_0, prob_1))
         columns = ["prob_0", "prob_1", "label"]
     df = pd.DataFrame(
         np.hstack((all_yhat_probs, all_y.reshape(-1, 1))), columns=columns
@@ -86,8 +87,8 @@ def save_predictions_to_disk(all_y, all_yhat, split, cfg, use_logits):
 
 
 def get_model(cfg):
-    if "attention" in cfg["model_name"]:
-        model = AttentionRNN
+    if "sharedmlpover" in cfg["model_name"]:
+        model = SharedMLPOverRNN
     elif "inception" in cfg["model_name"]:
         model = InceptionNet
     elif "rnn" in cfg["model_name"]:

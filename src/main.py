@@ -218,13 +218,13 @@ def train(cfg, model, train_split, validation_split):
     )
 
     def encode(X):
-        X = torch.Tensor(X)
+        X = torch.tensor(X, dtype=torch.float, device=cfg["device"])
         # Pad to large enough multiple of 2 so that no loss in dimensionality
         # through Autoencoder.
         X = pad_signals(X, 192)
         X_hat = autoencoder.encode(X)
         X_hat = torch.squeeze(X_hat)
-        return X_hat.detach().numpy()
+        return X_hat.detach().cpu().numpy()
 
     X_hat = encode(X)
     X_test_hat = encode(X_test)
@@ -282,10 +282,10 @@ def test(cfg, model, train_split, validation_split, test_split):
         y_hat_val = model.predict_proba(X_val)
         y_hat_test = model.predict_proba(X_test)
 
-        if cfg["model"] == "ptbdb":
-            y_hat_train = y_hat_train[:, 1]
-            y_hat_val = y_hat_val[:, 1]
-            y_hat_test = y_hat_test[:, 1]
+        if cfg["dataset_name"] == "ptbdb":
+            y_hat_train = y_hat_train[:, 1:]
+            y_hat_val = y_hat_val[:, 1:]
+            y_hat_test = y_hat_test[:, 1:]
 
         train_data_loader = get_data_loader(cfg, split=train_split, shuffle=False)
         test_loss_dict = evaluate_predictions(
