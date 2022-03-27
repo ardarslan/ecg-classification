@@ -31,12 +31,12 @@ def train_epoch(model, optimizer, train_data_loader, class_weights, cfg):
         optimizer.zero_grad()
         X, y = (
             batch["X"].float().to(cfg["device"]),
-            batch["y"].long().to(cfg["device"]),
+            batch["y"].to(cfg["device"]),
         )
         yhat = model(X)
         if cfg["dataset_name"] == "mitbih":
             cross_entropy_loss = torch.nn.CrossEntropyLoss(weight=class_weights)(
-                yhat, y
+                yhat, y.long()
             )
         elif cfg["dataset_name"] == "ptbdb":
             sample_weights = torch.tensor(
@@ -45,7 +45,7 @@ def train_epoch(model, optimizer, train_data_loader, class_weights, cfg):
                 device=cfg["device"],
             )
             cross_entropy_loss = torch.nn.BCEWithLogitsLoss(weight=sample_weights)(
-                yhat.squeeze(), y
+                yhat.squeeze(), y.float()
             )
         else:
             raise Exception(f"Not a valid dataset {cfg['dataset_name']}.")
@@ -94,7 +94,7 @@ def evaluation_epoch(
         for batch in evaluation_data_loader:
             X, y = (
                 batch["X"].float().to(cfg["device"]),
-                batch["y"].long().to(cfg["device"]),
+                batch["y"].to(cfg["device"]),
             )
             yhat = model(X)
             all_y.append(y.detach().cpu().numpy())

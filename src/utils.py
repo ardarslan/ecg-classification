@@ -173,7 +173,7 @@ def evaluate_predictions(all_y, all_yhat, class_weights, cfg, use_logits):
                     torch.tensor(
                         all_yhat, device=cfg["device"], dtype=torch.float
                     ).squeeze(),
-                    torch.tensor(all_y, device=cfg["device"], dtype=torch.long),
+                    torch.tensor(all_y, device=cfg["device"], dtype=torch.float),
                 )
             )
         else:
