@@ -31,7 +31,7 @@ def get_data_loader(cfg, split, shuffle):
         shuffle=shuffle,
         num_workers=cfg["num_workers"],
         pin_memory=False,
-        drop_last=True,
+        drop_last=False,
     )
     return data_loader
 
