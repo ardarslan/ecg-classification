@@ -4,6 +4,7 @@
 *__MACOSX
 .vscode
 *lsf.*
+*.csv
 
 *best_checkpoint
 data
