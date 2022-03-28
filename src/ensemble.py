@@ -132,7 +132,7 @@ def eval_ensemble_preds(labels: np.ndarray, preds: np.ndarray, cfg: dict) -> dic
 
     # If we have more than 1 dimension, predictions are given as probabilities
     # and so map them to class predictions.
-    if len(preds.shape) > 1:
+    if preds.shape[1] > 1:
         preds = np.argmax(preds, axis=1)
     result_dict["unbalanced_acc_score"] = accuracy_score(labels, preds)
     result_dict["balanced_acc_score"] = balanced_accuracy_score(labels, preds)

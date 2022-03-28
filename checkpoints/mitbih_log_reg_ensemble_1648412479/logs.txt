@@ -1,3 +1,0 @@
-Dataset name: mitbih, Model name: log_reg_ensemble, Transfer learning: False, RNN freeze: never, RNN Bidirectional: False, RNN Num Layers: 1
-Ensembling: bidirectional_lstm_rnn, bidirectional_vanilla_rnn, lstm_rnn, vanilla_cnn, residual_cnn, ae, inception_net, sharedmlpover_vanilla_rnn, sharedmlpover_lstm_rnn
-Test mitbih | unbalanced_acc_score: 0.98, balanced_acc_score: 0.885
