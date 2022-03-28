@@ -5,6 +5,7 @@
 .vscode
 *lsf.*
 *.csv
+*.h5
 
 *best_checkpoint
 data

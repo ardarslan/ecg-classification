@@ -1,3 +1,5 @@
+import os
+import time
 import pandas as pd
 import numpy as np
 
@@ -22,6 +24,7 @@ from sklearn.metrics import accuracy_score
 
 
 df_train = pd.read_csv("../../data/mitbih_train.csv", header=None)
+df_train = df_train.iloc[:1000]
 df_train = df_train.sample(frac=1)
 df_test = pd.read_csv("../../data/mitbih_test.csv", header=None)
 
@@ -103,5 +106,14 @@ pred_test = np.argmax(pred_test, axis=-1)
 
 # print("Test f1 score : %s " % f1)
 
+dataset_name = "mitbih"
+timestamp = str(int(time.time()))
+
 acc = accuracy_score(Y_test, pred_test)
-print("MITBIH Test accuracy score: %s " % acc)
+print_str = f"Test {dataset_name} | unbalanced_acc_score: {np.round(acc, 3)}"
+
+checkpoint_dir = f"../../checkpoints/{dataset_name}_baseline_cnn_{timestamp}"
+os.makedirs(checkpoint_dir, exist_ok=True)
+print(print_str)
+with open(os.path.join(checkpoint_dir, "logs.txt"), "w") as file_writer:
+    file_writer.write(print_str)

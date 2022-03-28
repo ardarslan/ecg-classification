@@ -1,3 +1,5 @@
+import os
+import time
 import pandas as pd
 import numpy as np
 
@@ -28,6 +30,7 @@ df = pd.concat([df_1, df_2])
 df_train, df_test = train_test_split(
     df, test_size=0.2, random_state=1337, stratify=df[187]
 )
+df_train = df_train.iloc[:1000]
 
 Y = np.array(df_train[187].values).astype(np.int8)
 X = np.array(df_train[list(range(187))].values)[..., np.newaxis]
@@ -101,13 +104,17 @@ model.load_weights(file_path)
 pred_test = model.predict(X_test)
 pred_test_0_1 = (pred_test > 0.5).astype(np.int8)
 
-# f1 = f1_score(Y_test, pred_test)
-# print("Test f1 score : %s " % f1)
-
 acc = accuracy_score(Y_test, pred_test_0_1)
 auroc = roc_auc_score(Y_test, pred_test)
 auprc = average_precision_score(Y_test, pred_test)
 
-print("PTBDB Test accuracy score: %s " % acc)
-print("PTBDB Test AUROC score: %s " % auroc)
-print("PTBDB Test AUPRC score: %s " % auprc)
+dataset_name = "ptbdb"
+timestamp = str(int(time.time()))
+
+print_str = f"Test {dataset_name} | unbalanced_acc_score: {np.round(acc, 3)}, auroc: {np.round(auroc, 3)}, auprc: {np.round(auprc, 3)}"
+
+checkpoint_dir = f"../../checkpoints/{dataset_name}_baseline_cnn_{timestamp}"
+os.makedirs(checkpoint_dir, exist_ok=True)
+print(print_str)
+with open(os.path.join(checkpoint_dir, "logs.txt"), "w") as file_writer:
+    file_writer.write(print_str)
