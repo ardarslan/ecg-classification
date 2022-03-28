@@ -47,7 +47,9 @@ def predict_max_prob(preds: pd.DataFrame) -> pd.DataFrame:
     return max_prob_preds
 
 
-def load_predictions(dir: str,) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+def load_predictions(
+    dir: str,
+) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     train_pred = pd.read_csv(os.path.join(dir, "train_predictions.txt"))
     val_pred = pd.read_csv(os.path.join(dir, "val_predictions.txt"))
     test_pred = pd.read_csv(os.path.join(dir, "test_predictions.txt"))
@@ -114,7 +116,8 @@ def save_majority_preds_to_disk(labels: np.ndarray, preds: np.ndarray, split, cf
     checkpoints_dir = get_checkpoints_dir(cfg)
     predictions_path = os.path.join(checkpoints_dir, f"{split}_predictions.txt")
     df = pd.DataFrame(
-        np.hstack((preds, labels.reshape(-1, 1))), columns=["preds", "label"],
+        np.hstack((preds, labels.reshape(-1, 1))),
+        columns=["preds", "label"],
     )
     df.to_csv(predictions_path, index=False)
 
@@ -140,7 +143,7 @@ def eval_ensemble_preds(labels: np.ndarray, preds: np.ndarray, cfg: dict) -> dic
 def run_ensemble(cfg: dict) -> None:
 
     X_train, y_train, X_val, y_val, X_test, y_test = create_ensemble_datasets(
-        cfg, excluded_models=[]
+        cfg, excluded_models=["baseline_cnn"]
     )
 
     if "majority_ensemble" == cfg["model_name"]:
