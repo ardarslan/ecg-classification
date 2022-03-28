@@ -24,7 +24,6 @@ from sklearn.metrics import accuracy_score
 
 
 df_train = pd.read_csv("../../data/mitbih_train.csv", header=None)
-df_train = df_train.iloc[:1000]
 df_train = df_train.sample(frac=1)
 df_test = pd.read_csv("../../data/mitbih_test.csv", header=None)
 

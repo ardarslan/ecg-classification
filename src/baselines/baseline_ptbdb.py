@@ -30,7 +30,6 @@ df = pd.concat([df_1, df_2])
 df_train, df_test = train_test_split(
     df, test_size=0.2, random_state=1337, stratify=df[187]
 )
-df_train = df_train.iloc[:1000]
 
 Y = np.array(df_train[187].values).astype(np.int8)
 X = np.array(df_train[list(range(187))].values)[..., np.newaxis]
