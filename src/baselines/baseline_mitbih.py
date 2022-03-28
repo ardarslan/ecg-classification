@@ -1,7 +1,14 @@
 import os
 import time
+import random
 import pandas as pd
 import numpy as np
+import tensorflow as tf
+
+seed = 1337
+np.random.seed(seed)
+random.seed(seed)
+tf.random.set_seed(seed)
 
 from tensorflow.keras import optimizers, losses, activations, models
 from tensorflow.keras.callbacks import (
