@@ -1,0 +1,3 @@
+Dataset name: mitbih, Model name: majority_ensemble, Transfer learning: False, RNN freeze: never, RNN Bidirectional: False, RNN Num Layers: 1
+Ensembling: vanilla_rnn, sharedmlpover_vanilla_rnn, sharedmlpover_lstm_rnn, inception_net, ae, vanilla_cnn, bidirectional_vanilla_rnn, residual_cnn, bidirectional_lstm_rnn
+Test mitbih | unbalanced_acc_score: 0.979, balanced_acc_score: 0.93

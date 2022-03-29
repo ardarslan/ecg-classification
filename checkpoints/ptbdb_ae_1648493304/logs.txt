@@ -1,0 +1,378 @@
+Dataset name: ptbdb, Model name: ae, Transfer learning: False, RNN freeze: never, RNN Bidirectional: False, RNN Num Layers: 1
+Total number of trainable parameters in ae model: 11888
+Train ptbdb | Epoch: 1, mse_loss: 0.298
+Validation ptbdb | Epoch: 1, mse_loss: 0.043
+Saving the best checkpoint...
+Train ptbdb | Epoch: 2, mse_loss: 0.034
+Validation ptbdb | Epoch: 2, mse_loss: 0.024
+Saving the best checkpoint...
+Train ptbdb | Epoch: 3, mse_loss: 0.025
+Validation ptbdb | Epoch: 3, mse_loss: 0.02
+Saving the best checkpoint...
+Train ptbdb | Epoch: 4, mse_loss: 0.021
+Validation ptbdb | Epoch: 4, mse_loss: 0.018
+Saving the best checkpoint...
+Train ptbdb | Epoch: 5, mse_loss: 0.02
+Validation ptbdb | Epoch: 5, mse_loss: 0.017
+Saving the best checkpoint...
+Train ptbdb | Epoch: 6, mse_loss: 0.018
+Validation ptbdb | Epoch: 6, mse_loss: 0.016
+Saving the best checkpoint...
+Train ptbdb | Epoch: 7, mse_loss: 0.018
+Validation ptbdb | Epoch: 7, mse_loss: 0.015
+Saving the best checkpoint...
+Train ptbdb | Epoch: 8, mse_loss: 0.017
+Validation ptbdb | Epoch: 8, mse_loss: 0.015
+Saving the best checkpoint...
+Train ptbdb | Epoch: 9, mse_loss: 0.016
+Validation ptbdb | Epoch: 9, mse_loss: 0.014
+Saving the best checkpoint...
+Train ptbdb | Epoch: 10, mse_loss: 0.016
+Validation ptbdb | Epoch: 10, mse_loss: 0.014
+Saving the best checkpoint...
+Train ptbdb | Epoch: 11, mse_loss: 0.015
+Validation ptbdb | Epoch: 11, mse_loss: 0.014
+Saving the best checkpoint...
+Train ptbdb | Epoch: 12, mse_loss: 0.015
+Validation ptbdb | Epoch: 12, mse_loss: 0.013
+Saving the best checkpoint...
+Train ptbdb | Epoch: 13, mse_loss: 0.014
+Validation ptbdb | Epoch: 13, mse_loss: 0.013
+Saving the best checkpoint...
+Train ptbdb | Epoch: 14, mse_loss: 0.014
+Validation ptbdb | Epoch: 14, mse_loss: 0.013
+Saving the best checkpoint...
+Train ptbdb | Epoch: 15, mse_loss: 0.014
+Validation ptbdb | Epoch: 15, mse_loss: 0.012
+Saving the best checkpoint...
+Train ptbdb | Epoch: 16, mse_loss: 0.014
+Validation ptbdb | Epoch: 16, mse_loss: 0.012
+Saving the best checkpoint...
+Train ptbdb | Epoch: 17, mse_loss: 0.013
+Validation ptbdb | Epoch: 17, mse_loss: 0.012
+Saving the best checkpoint...
+Train ptbdb | Epoch: 18, mse_loss: 0.013
+Validation ptbdb | Epoch: 18, mse_loss: 0.012
+Saving the best checkpoint...
+Train ptbdb | Epoch: 19, mse_loss: 0.013
+Validation ptbdb | Epoch: 19, mse_loss: 0.012
+Saving the best checkpoint...
+Train ptbdb | Epoch: 20, mse_loss: 0.013
+Validation ptbdb | Epoch: 20, mse_loss: 0.011
+Saving the best checkpoint...
+Train ptbdb | Epoch: 21, mse_loss: 0.012
+Validation ptbdb | Epoch: 21, mse_loss: 0.011
+Saving the best checkpoint...
+Train ptbdb | Epoch: 22, mse_loss: 0.012
+Validation ptbdb | Epoch: 22, mse_loss: 0.011
+Saving the best checkpoint...
+Train ptbdb | Epoch: 23, mse_loss: 0.012
+Validation ptbdb | Epoch: 23, mse_loss: 0.011
+Saving the best checkpoint...
+Train ptbdb | Epoch: 24, mse_loss: 0.012
+Validation ptbdb | Epoch: 24, mse_loss: 0.01
+Saving the best checkpoint...
+Train ptbdb | Epoch: 25, mse_loss: 0.012
+Validation ptbdb | Epoch: 25, mse_loss: 0.01
+Saving the best checkpoint...
+Train ptbdb | Epoch: 26, mse_loss: 0.011
+Validation ptbdb | Epoch: 26, mse_loss: 0.01
+Saving the best checkpoint...
+Train ptbdb | Epoch: 27, mse_loss: 0.011
+Validation ptbdb | Epoch: 27, mse_loss: 0.01
+Saving the best checkpoint...
+Train ptbdb | Epoch: 28, mse_loss: 0.011
+Validation ptbdb | Epoch: 28, mse_loss: 0.01
+Saving the best checkpoint...
+Train ptbdb | Epoch: 29, mse_loss: 0.011
+Validation ptbdb | Epoch: 29, mse_loss: 0.009
+Saving the best checkpoint...
+Train ptbdb | Epoch: 30, mse_loss: 0.011
+Validation ptbdb | Epoch: 30, mse_loss: 0.009
+Saving the best checkpoint...
+Train ptbdb | Epoch: 31, mse_loss: 0.011
+Validation ptbdb | Epoch: 31, mse_loss: 0.009
+Saving the best checkpoint...
+Train ptbdb | Epoch: 32, mse_loss: 0.01
+Validation ptbdb | Epoch: 32, mse_loss: 0.009
+Saving the best checkpoint...
+Train ptbdb | Epoch: 33, mse_loss: 0.01
+Validation ptbdb | Epoch: 33, mse_loss: 0.009
+Saving the best checkpoint...
+Train ptbdb | Epoch: 34, mse_loss: 0.01
+Validation ptbdb | Epoch: 34, mse_loss: 0.009
+Saving the best checkpoint...
+Train ptbdb | Epoch: 35, mse_loss: 0.01
+Validation ptbdb | Epoch: 35, mse_loss: 0.009
+Train ptbdb | Epoch: 36, mse_loss: 0.01
+Validation ptbdb | Epoch: 36, mse_loss: 0.008
+Saving the best checkpoint...
+Train ptbdb | Epoch: 37, mse_loss: 0.01
+Validation ptbdb | Epoch: 37, mse_loss: 0.008
+Saving the best checkpoint...
+Train ptbdb | Epoch: 38, mse_loss: 0.01
+Validation ptbdb | Epoch: 38, mse_loss: 0.008
+Saving the best checkpoint...
+Train ptbdb | Epoch: 39, mse_loss: 0.009
+Validation ptbdb | Epoch: 39, mse_loss: 0.008
+Saving the best checkpoint...
+Train ptbdb | Epoch: 40, mse_loss: 0.009
+Validation ptbdb | Epoch: 40, mse_loss: 0.008
+Saving the best checkpoint...
+Train ptbdb | Epoch: 41, mse_loss: 0.009
+Validation ptbdb | Epoch: 41, mse_loss: 0.008
+Train ptbdb | Epoch: 42, mse_loss: 0.009
+Validation ptbdb | Epoch: 42, mse_loss: 0.008
+Saving the best checkpoint...
+Train ptbdb | Epoch: 43, mse_loss: 0.009
+Validation ptbdb | Epoch: 43, mse_loss: 0.008
+Train ptbdb | Epoch: 44, mse_loss: 0.009
+Validation ptbdb | Epoch: 44, mse_loss: 0.008
+Saving the best checkpoint...
+Train ptbdb | Epoch: 45, mse_loss: 0.009
+Validation ptbdb | Epoch: 45, mse_loss: 0.008
+Train ptbdb | Epoch: 46, mse_loss: 0.009
+Validation ptbdb | Epoch: 46, mse_loss: 0.008
+Saving the best checkpoint...
+Train ptbdb | Epoch: 47, mse_loss: 0.009
+Validation ptbdb | Epoch: 47, mse_loss: 0.008
+Saving the best checkpoint...
+Train ptbdb | Epoch: 48, mse_loss: 0.009
+Validation ptbdb | Epoch: 48, mse_loss: 0.008
+Train ptbdb | Epoch: 49, mse_loss: 0.009
+Validation ptbdb | Epoch: 49, mse_loss: 0.007
+Saving the best checkpoint...
+Train ptbdb | Epoch: 50, mse_loss: 0.009
+Validation ptbdb | Epoch: 50, mse_loss: 0.007
+Saving the best checkpoint...
+Train ptbdb | Epoch: 51, mse_loss: 0.009
+Validation ptbdb | Epoch: 51, mse_loss: 0.008
+Train ptbdb | Epoch: 52, mse_loss: 0.009
+Validation ptbdb | Epoch: 52, mse_loss: 0.008
+Train ptbdb | Epoch: 53, mse_loss: 0.008
+Validation ptbdb | Epoch: 53, mse_loss: 0.007
+Saving the best checkpoint...
+Train ptbdb | Epoch: 54, mse_loss: 0.009
+Validation ptbdb | Epoch: 54, mse_loss: 0.007
+Saving the best checkpoint...
+Train ptbdb | Epoch: 55, mse_loss: 0.008
+Validation ptbdb | Epoch: 55, mse_loss: 0.007
+Train ptbdb | Epoch: 56, mse_loss: 0.008
+Validation ptbdb | Epoch: 56, mse_loss: 0.007
+Saving the best checkpoint...
+Train ptbdb | Epoch: 57, mse_loss: 0.008
+Validation ptbdb | Epoch: 57, mse_loss: 0.007
+Train ptbdb | Epoch: 58, mse_loss: 0.008
+Validation ptbdb | Epoch: 58, mse_loss: 0.007
+Saving the best checkpoint...
+Train ptbdb | Epoch: 59, mse_loss: 0.008
+Validation ptbdb | Epoch: 59, mse_loss: 0.007
+Train ptbdb | Epoch: 60, mse_loss: 0.008
+Validation ptbdb | Epoch: 60, mse_loss: 0.007
+Saving the best checkpoint...
+Train ptbdb | Epoch: 61, mse_loss: 0.008
+Validation ptbdb | Epoch: 61, mse_loss: 0.007
+Train ptbdb | Epoch: 62, mse_loss: 0.008
+Validation ptbdb | Epoch: 62, mse_loss: 0.007
+Saving the best checkpoint...
+Train ptbdb | Epoch: 63, mse_loss: 0.008
+Validation ptbdb | Epoch: 63, mse_loss: 0.007
+Train ptbdb | Epoch: 64, mse_loss: 0.008
+Validation ptbdb | Epoch: 64, mse_loss: 0.007
+Saving the best checkpoint...
+Train ptbdb | Epoch: 65, mse_loss: 0.008
+Validation ptbdb | Epoch: 65, mse_loss: 0.007
+Train ptbdb | Epoch: 66, mse_loss: 0.008
+Validation ptbdb | Epoch: 66, mse_loss: 0.007
+Saving the best checkpoint...
+Train ptbdb | Epoch: 67, mse_loss: 0.008
+Validation ptbdb | Epoch: 67, mse_loss: 0.007
+Train ptbdb | Epoch: 68, mse_loss: 0.008
+Validation ptbdb | Epoch: 68, mse_loss: 0.007
+Train ptbdb | Epoch: 69, mse_loss: 0.008
+Validation ptbdb | Epoch: 69, mse_loss: 0.007
+Train ptbdb | Epoch: 70, mse_loss: 0.008
+Validation ptbdb | Epoch: 70, mse_loss: 0.007
+Saving the best checkpoint...
+Train ptbdb | Epoch: 71, mse_loss: 0.008
+Validation ptbdb | Epoch: 71, mse_loss: 0.007
+Saving the best checkpoint...
+Train ptbdb | Epoch: 72, mse_loss: 0.008
+Validation ptbdb | Epoch: 72, mse_loss: 0.007
+Saving the best checkpoint...
+Train ptbdb | Epoch: 73, mse_loss: 0.008
+Validation ptbdb | Epoch: 73, mse_loss: 0.007
+Train ptbdb | Epoch: 74, mse_loss: 0.008
+Validation ptbdb | Epoch: 74, mse_loss: 0.007
+Train ptbdb | Epoch: 75, mse_loss: 0.008
+Validation ptbdb | Epoch: 75, mse_loss: 0.007
+Saving the best checkpoint...
+Train ptbdb | Epoch: 76, mse_loss: 0.008
+Validation ptbdb | Epoch: 76, mse_loss: 0.007
+Train ptbdb | Epoch: 77, mse_loss: 0.008
+Validation ptbdb | Epoch: 77, mse_loss: 0.007
+Saving the best checkpoint...
+Train ptbdb | Epoch: 78, mse_loss: 0.008
+Validation ptbdb | Epoch: 78, mse_loss: 0.007
+Train ptbdb | Epoch: 79, mse_loss: 0.008
+Validation ptbdb | Epoch: 79, mse_loss: 0.006
+Saving the best checkpoint...
+Train ptbdb | Epoch: 80, mse_loss: 0.008
+Validation ptbdb | Epoch: 80, mse_loss: 0.007
+Train ptbdb | Epoch: 81, mse_loss: 0.008
+Validation ptbdb | Epoch: 81, mse_loss: 0.006
+Saving the best checkpoint...
+Train ptbdb | Epoch: 82, mse_loss: 0.008
+Validation ptbdb | Epoch: 82, mse_loss: 0.006
+Train ptbdb | Epoch: 83, mse_loss: 0.008
+Validation ptbdb | Epoch: 83, mse_loss: 0.006
+Train ptbdb | Epoch: 84, mse_loss: 0.008
+Validation ptbdb | Epoch: 84, mse_loss: 0.006
+Train ptbdb | Epoch: 85, mse_loss: 0.008
+Validation ptbdb | Epoch: 85, mse_loss: 0.007
+Train ptbdb | Epoch: 86, mse_loss: 0.008
+Validation ptbdb | Epoch: 86, mse_loss: 0.006
+Saving the best checkpoint...
+Train ptbdb | Epoch: 87, mse_loss: 0.008
+Validation ptbdb | Epoch: 87, mse_loss: 0.006
+Saving the best checkpoint...
+Train ptbdb | Epoch: 88, mse_loss: 0.008
+Validation ptbdb | Epoch: 88, mse_loss: 0.006
+Saving the best checkpoint...
+Train ptbdb | Epoch: 89, mse_loss: 0.008
+Validation ptbdb | Epoch: 89, mse_loss: 0.007
+Train ptbdb | Epoch: 90, mse_loss: 0.008
+Validation ptbdb | Epoch: 90, mse_loss: 0.006
+Saving the best checkpoint...
+Train ptbdb | Epoch: 91, mse_loss: 0.008
+Validation ptbdb | Epoch: 91, mse_loss: 0.006
+Saving the best checkpoint...
+Train ptbdb | Epoch: 92, mse_loss: 0.008
+Validation ptbdb | Epoch: 92, mse_loss: 0.006
+Train ptbdb | Epoch: 93, mse_loss: 0.007
+Validation ptbdb | Epoch: 93, mse_loss: 0.006
+Train ptbdb | Epoch: 94, mse_loss: 0.007
+Validation ptbdb | Epoch: 94, mse_loss: 0.006
+Train ptbdb | Epoch: 95, mse_loss: 0.008
+Validation ptbdb | Epoch: 95, mse_loss: 0.006
+Saving the best checkpoint...
+Train ptbdb | Epoch: 96, mse_loss: 0.007
+Validation ptbdb | Epoch: 96, mse_loss: 0.006
+Train ptbdb | Epoch: 97, mse_loss: 0.007
+Validation ptbdb | Epoch: 97, mse_loss: 0.006
+Train ptbdb | Epoch: 98, mse_loss: 0.007
+Validation ptbdb | Epoch: 98, mse_loss: 0.006
+Train ptbdb | Epoch: 99, mse_loss: 0.007
+Validation ptbdb | Epoch: 99, mse_loss: 0.006
+Train ptbdb | Epoch: 100, mse_loss: 0.007
+Validation ptbdb | Epoch: 100, mse_loss: 0.006
+Train ptbdb | Epoch: 101, mse_loss: 0.007
+Validation ptbdb | Epoch: 101, mse_loss: 0.006
+Saving the best checkpoint...
+Train ptbdb | Epoch: 102, mse_loss: 0.007
+Validation ptbdb | Epoch: 102, mse_loss: 0.006
+Train ptbdb | Epoch: 103, mse_loss: 0.007
+Validation ptbdb | Epoch: 103, mse_loss: 0.006
+Saving the best checkpoint...
+Train ptbdb | Epoch: 104, mse_loss: 0.007
+Validation ptbdb | Epoch: 104, mse_loss: 0.006
+Train ptbdb | Epoch: 105, mse_loss: 0.007
+Validation ptbdb | Epoch: 105, mse_loss: 0.006
+Train ptbdb | Epoch: 106, mse_loss: 0.007
+Validation ptbdb | Epoch: 106, mse_loss: 0.006
+Train ptbdb | Epoch: 107, mse_loss: 0.007
+Validation ptbdb | Epoch: 107, mse_loss: 0.006
+Train ptbdb | Epoch: 108, mse_loss: 0.007
+Validation ptbdb | Epoch: 108, mse_loss: 0.006
+Train ptbdb | Epoch: 109, mse_loss: 0.007
+Validation ptbdb | Epoch: 109, mse_loss: 0.006
+Train ptbdb | Epoch: 110, mse_loss: 0.007
+Validation ptbdb | Epoch: 110, mse_loss: 0.006
+Saving the best checkpoint...
+Train ptbdb | Epoch: 111, mse_loss: 0.007
+Validation ptbdb | Epoch: 111, mse_loss: 0.006
+Saving the best checkpoint...
+Train ptbdb | Epoch: 112, mse_loss: 0.007
+Validation ptbdb | Epoch: 112, mse_loss: 0.006
+Train ptbdb | Epoch: 113, mse_loss: 0.007
+Validation ptbdb | Epoch: 113, mse_loss: 0.006
+Saving the best checkpoint...
+Train ptbdb | Epoch: 114, mse_loss: 0.007
+Validation ptbdb | Epoch: 114, mse_loss: 0.006
+Train ptbdb | Epoch: 115, mse_loss: 0.007
+Validation ptbdb | Epoch: 115, mse_loss: 0.006
+Train ptbdb | Epoch: 116, mse_loss: 0.007
+Validation ptbdb | Epoch: 116, mse_loss: 0.006
+Saving the best checkpoint...
+Train ptbdb | Epoch: 117, mse_loss: 0.007
+Validation ptbdb | Epoch: 117, mse_loss: 0.006
+Train ptbdb | Epoch: 118, mse_loss: 0.007
+Validation ptbdb | Epoch: 118, mse_loss: 0.006
+Train ptbdb | Epoch: 119, mse_loss: 0.007
+Validation ptbdb | Epoch: 119, mse_loss: 0.006
+Train ptbdb | Epoch: 120, mse_loss: 0.007
+Validation ptbdb | Epoch: 120, mse_loss: 0.006
+Saving the best checkpoint...
+Train ptbdb | Epoch: 121, mse_loss: 0.007
+Validation ptbdb | Epoch: 121, mse_loss: 0.006
+Train ptbdb | Epoch: 122, mse_loss: 0.007
+Validation ptbdb | Epoch: 122, mse_loss: 0.006
+Train ptbdb | Epoch: 123, mse_loss: 0.007
+Validation ptbdb | Epoch: 123, mse_loss: 0.006
+Train ptbdb | Epoch: 124, mse_loss: 0.007
+Validation ptbdb | Epoch: 124, mse_loss: 0.006
+Train ptbdb | Epoch: 125, mse_loss: 0.007
+Validation ptbdb | Epoch: 125, mse_loss: 0.006
+Train ptbdb | Epoch: 126, mse_loss: 0.007
+Validation ptbdb | Epoch: 126, mse_loss: 0.006
+Train ptbdb | Epoch: 127, mse_loss: 0.007
+Validation ptbdb | Epoch: 127, mse_loss: 0.006
+Saving the best checkpoint...
+Train ptbdb | Epoch: 128, mse_loss: 0.007
+Validation ptbdb | Epoch: 128, mse_loss: 0.006
+Saving the best checkpoint...
+Train ptbdb | Epoch: 129, mse_loss: 0.007
+Validation ptbdb | Epoch: 129, mse_loss: 0.006
+Saving the best checkpoint...
+Train ptbdb | Epoch: 130, mse_loss: 0.007
+Validation ptbdb | Epoch: 130, mse_loss: 0.006
+Saving the best checkpoint...
+Train ptbdb | Epoch: 131, mse_loss: 0.007
+Validation ptbdb | Epoch: 131, mse_loss: 0.006
+Train ptbdb | Epoch: 132, mse_loss: 0.007
+Validation ptbdb | Epoch: 132, mse_loss: 0.006
+Train ptbdb | Epoch: 133, mse_loss: 0.007
+Validation ptbdb | Epoch: 133, mse_loss: 0.006
+Saving the best checkpoint...
+Train ptbdb | Epoch: 134, mse_loss: 0.007
+Validation ptbdb | Epoch: 134, mse_loss: 0.006
+Train ptbdb | Epoch: 135, mse_loss: 0.007
+Validation ptbdb | Epoch: 135, mse_loss: 0.006
+Train ptbdb | Epoch: 136, mse_loss: 0.007
+Validation ptbdb | Epoch: 136, mse_loss: 0.006
+Train ptbdb | Epoch: 137, mse_loss: 0.007
+Validation ptbdb | Epoch: 137, mse_loss: 0.006
+Train ptbdb | Epoch: 138, mse_loss: 0.007
+Validation ptbdb | Epoch: 138, mse_loss: 0.006
+Train ptbdb | Epoch: 139, mse_loss: 0.007
+Validation ptbdb | Epoch: 139, mse_loss: 0.006
+Train ptbdb | Epoch: 140, mse_loss: 0.007
+Validation ptbdb | Epoch: 140, mse_loss: 0.006
+Train ptbdb | Epoch: 141, mse_loss: 0.007
+Validation ptbdb | Epoch: 141, mse_loss: 0.006
+Train ptbdb | Epoch: 142, mse_loss: 0.007
+Validation ptbdb | Epoch: 142, mse_loss: 0.006
+Train ptbdb | Epoch: 143, mse_loss: 0.007
+Validation ptbdb | Epoch: 143, mse_loss: 0.006
+Train ptbdb | Epoch: 144, mse_loss: 0.007
+Validation ptbdb | Epoch: 144, mse_loss: 0.006
+Train ptbdb | Epoch: 145, mse_loss: 0.007
+Validation ptbdb | Epoch: 145, mse_loss: 0.006
+Train ptbdb | Epoch: 146, mse_loss: 0.007
+Validation ptbdb | Epoch: 146, mse_loss: 0.006
+Train ptbdb | Epoch: 147, mse_loss: 0.007
+Validation ptbdb | Epoch: 147, mse_loss: 0.006
+Train ptbdb | Epoch: 148, mse_loss: 0.007
+Validation ptbdb | Epoch: 148, mse_loss: 0.006
+Total number of trainable parameters in ae model: 11888
+Test ptbdb | unbalanced_acc_score: 0.879, balanced_acc_score: 0.833, roc_auc_score: 0.938, pr_auc_score: 0.975
