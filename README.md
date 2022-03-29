@@ -1,63 +1,31 @@
-# Mitbih
+# Environment Setup
+
+conda env create -f environment.yml
+
+conda activate ml4hc_project1
+
+# Reproduce results as a batch
+
+## Baselines
+
+chmod +x baseline_jobs.sh
+
+./baseline_jobs.sh
+
+## Our models
+
+chmod +x main_jobs.sh
+
+./main_jobs.sh
+
+## Ensemble models
+
+chmod +x ensemble_jobs.sh
+
+./ensemble_jobs.sh
+
+# Reproduce one experiment at a time
+Please see .sh files.
 
 
-## BiDirectional RNN:
-
-bsub -n 2 -W 24:00 -R "rusage[mem=8192]" python main.py --dataset_name mitbih --model_name vanilla_rnn
-
-## BiDirectional LSTM:
-
-bsub -n 2 -W 24:00 -R "rusage[mem=8192]" python main.py --dataset_name mitbih --model_name lstm_rnn
-
-## Vanilla CNN:
-
-bsub -n 2 -W 24:00 -R "rusage[mem=8192]" python main.py --dataset_name mitbih --model_name vanilla_cnn
-
-## Residual CNN:
-
-bsub -n 2 -W 24:00 -R "rusage[mem=8192]" python main.py --dataset_name mitbih --model_name residual_cnn
-
-## Majority Vote Ensemble
-
-```
-python ensemble.py --dataset_name mitbih --model_name majority_ensemble
-```
-
-## Logistic Regression Ensemble
-
-```
-python ensemble.py --dataset_name mitbih --model_name log_reg_ensemble
-```
-
-# Ptbdb
-
-## BiDirectional RNN:
-
-bsub -n 2 -W 24:00 -R "rusage[mem=8192]" python main.py --dataset_name ptbdb --model_name vanilla_rnn
-
-## BiDirectional LSTM:
-
-bsub -n 2 -W 24:00 -R "rusage[mem=8192]" python main.py --dataset_name ptbdb --model_name lstm_rnn
-
-## Vanilla CNN:
-
-bsub -n 2 -W 24:00 -R "rusage[mem=8192]" python main.py --dataset_name ptbdb --model_name vanilla_cnn
-
-## Residual CNN:
-
-bsub -n 2 -W 24:00 -R "rusage[mem=8192]" python main.py --dataset_name ptbdb --model_name residual_cnn
-
-## Majority Vote Ensemble
-
-```
-python ensemble.py --dataset_name ptbdb --model_name majority_ensemble
-```
-
-## Logistic Regression Ensemble
-
-```
-python ensemble.py --dataset_name ptbdb --model_name log_reg_ensemble
-```
-
-
-Please see checkpoints folder for results.
+Results will be saved in checkpoints folder.

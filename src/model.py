@@ -225,7 +225,7 @@ class Autoencoder(nn.Module):
         return decoded
 
 
-class AttentionRNN(nn.Module):
+class SharedMLPOverRNN(nn.Module):
     def __init__(self, cfg):
         super().__init__()
         self.cfg = cfg

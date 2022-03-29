@@ -31,12 +31,12 @@ def train_epoch(model, optimizer, train_data_loader, class_weights, cfg):
         optimizer.zero_grad()
         X, y = (
             batch["X"].float().to(cfg["device"]),
-            batch["y"].long().to(cfg["device"]),
+            batch["y"].to(cfg["device"]),
         )
         yhat = model(X)
         if cfg["dataset_name"] == "mitbih":
             cross_entropy_loss = torch.nn.CrossEntropyLoss(weight=class_weights)(
-                yhat, y
+                yhat, y.long()
             )
         elif cfg["dataset_name"] == "ptbdb":
             sample_weights = torch.tensor(
@@ -45,7 +45,7 @@ def train_epoch(model, optimizer, train_data_loader, class_weights, cfg):
                 device=cfg["device"],
             )
             cross_entropy_loss = torch.nn.BCEWithLogitsLoss(weight=sample_weights)(
-                yhat.squeeze(), y
+                yhat.squeeze(), y.float()
             )
         else:
             raise Exception(f"Not a valid dataset {cfg['dataset_name']}.")
@@ -94,7 +94,7 @@ def evaluation_epoch(
         for batch in evaluation_data_loader:
             X, y = (
                 batch["X"].float().to(cfg["device"]),
-                batch["y"].long().to(cfg["device"]),
+                batch["y"].to(cfg["device"]),
             )
             yhat = model(X)
             all_y.append(y.detach().cpu().numpy())
@@ -218,13 +218,13 @@ def train(cfg, model, train_split, validation_split):
     )
 
     def encode(X):
-        X = torch.Tensor(X)
+        X = torch.tensor(X, dtype=torch.float, device=cfg["device"])
         # Pad to large enough multiple of 2 so that no loss in dimensionality
         # through Autoencoder.
         X = pad_signals(X, 192)
         X_hat = autoencoder.encode(X)
         X_hat = torch.squeeze(X_hat)
-        return X_hat.detach().numpy()
+        return X_hat.detach().cpu().numpy()
 
     X_hat = encode(X)
     X_test_hat = encode(X_test)
@@ -282,10 +282,10 @@ def test(cfg, model, train_split, validation_split, test_split):
         y_hat_val = model.predict_proba(X_val)
         y_hat_test = model.predict_proba(X_test)
 
-        if cfg["model"] == "ptbdb":
-            y_hat_train = y_hat_train[:, 1]
-            y_hat_val = y_hat_val[:, 1]
-            y_hat_test = y_hat_test[:, 1]
+        if cfg["dataset_name"] == "ptbdb":
+            y_hat_train = y_hat_train[:, 1:]
+            y_hat_val = y_hat_val[:, 1:]
+            y_hat_test = y_hat_test[:, 1:]
 
         train_data_loader = get_data_loader(cfg, split=train_split, shuffle=False)
         test_loss_dict = evaluate_predictions(
@@ -375,7 +375,7 @@ if __name__ == "__main__":
             raise Exception(f"Not a valid rnn_freeze {cfg['rnn_freeze']}.")
 
         # replace FCNN with a suitable one. newly added layer's weights have requires_grad = True by default
-        model.fc = nn.Linear(model.rnn_output_size, 1)
+        model.fc = nn.Linear(model.rnn_output_size, 1, device=cfg["device"])
 
         # train and test on ptbdb
         cfg["dataset_name"] = "ptbdb"

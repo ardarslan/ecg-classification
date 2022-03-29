@@ -1,0 +1,153 @@
+Dataset name: ptbdb, Model name: inception_net, Transfer learning: False, RNN freeze: never, RNN Bidirectional: False, RNN Num Layers: 1
+Total number of trainable parameters in inception_net model: 66857
+Train ptbdb | Epoch: 1, cross_entropy_loss: 0.623, unbalanced_acc_score: 0.572, balanced_acc_score: 0.621, roc_auc_score: 0.677, pr_auc_score: 0.857
+Validation ptbdb | Epoch: 1, cross_entropy_loss: 0.569, unbalanced_acc_score: 0.742, balanced_acc_score: 0.678, roc_auc_score: 0.793, pr_auc_score: 0.915
+Saving the best checkpoint...
+Train ptbdb | Epoch: 2, cross_entropy_loss: 0.499, unbalanced_acc_score: 0.711, balanced_acc_score: 0.753, roc_auc_score: 0.832, pr_auc_score: 0.93
+Validation ptbdb | Epoch: 2, cross_entropy_loss: 0.407, unbalanced_acc_score: 0.841, balanced_acc_score: 0.852, roc_auc_score: 0.906, pr_auc_score: 0.961
+Saving the best checkpoint...
+Train ptbdb | Epoch: 3, cross_entropy_loss: 0.397, unbalanced_acc_score: 0.809, balanced_acc_score: 0.829, roc_auc_score: 0.902, pr_auc_score: 0.96
+Validation ptbdb | Epoch: 3, cross_entropy_loss: 0.331, unbalanced_acc_score: 0.865, balanced_acc_score: 0.872, roc_auc_score: 0.934, pr_auc_score: 0.973
+Saving the best checkpoint...
+Train ptbdb | Epoch: 4, cross_entropy_loss: 0.328, unbalanced_acc_score: 0.849, balanced_acc_score: 0.863, roc_auc_score: 0.934, pr_auc_score: 0.973
+Validation ptbdb | Epoch: 4, cross_entropy_loss: 0.317, unbalanced_acc_score: 0.899, balanced_acc_score: 0.887, roc_auc_score: 0.949, pr_auc_score: 0.979
+Saving the best checkpoint...
+Train ptbdb | Epoch: 5, cross_entropy_loss: 0.299, unbalanced_acc_score: 0.864, balanced_acc_score: 0.875, roc_auc_score: 0.945, pr_auc_score: 0.978
+Validation ptbdb | Epoch: 5, cross_entropy_loss: 0.28, unbalanced_acc_score: 0.887, balanced_acc_score: 0.897, roc_auc_score: 0.952, pr_auc_score: 0.98
+Saving the best checkpoint...
+Train ptbdb | Epoch: 6, cross_entropy_loss: 0.278, unbalanced_acc_score: 0.874, balanced_acc_score: 0.883, roc_auc_score: 0.953, pr_auc_score: 0.981
+Validation ptbdb | Epoch: 6, cross_entropy_loss: 0.24, unbalanced_acc_score: 0.887, balanced_acc_score: 0.906, roc_auc_score: 0.967, pr_auc_score: 0.986
+Saving the best checkpoint...
+Train ptbdb | Epoch: 7, cross_entropy_loss: 0.26, unbalanced_acc_score: 0.886, balanced_acc_score: 0.894, roc_auc_score: 0.959, pr_auc_score: 0.983
+Validation ptbdb | Epoch: 7, cross_entropy_loss: 0.246, unbalanced_acc_score: 0.897, balanced_acc_score: 0.912, roc_auc_score: 0.963, pr_auc_score: 0.984
+Train ptbdb | Epoch: 8, cross_entropy_loss: 0.216, unbalanced_acc_score: 0.909, balanced_acc_score: 0.915, roc_auc_score: 0.972, pr_auc_score: 0.988
+Validation ptbdb | Epoch: 8, cross_entropy_loss: 0.198, unbalanced_acc_score: 0.915, balanced_acc_score: 0.922, roc_auc_score: 0.977, pr_auc_score: 0.99
+Saving the best checkpoint...
+Train ptbdb | Epoch: 9, cross_entropy_loss: 0.211, unbalanced_acc_score: 0.912, balanced_acc_score: 0.916, roc_auc_score: 0.973, pr_auc_score: 0.988
+Validation ptbdb | Epoch: 9, cross_entropy_loss: 0.196, unbalanced_acc_score: 0.905, balanced_acc_score: 0.921, roc_auc_score: 0.98, pr_auc_score: 0.99
+Saving the best checkpoint...
+Train ptbdb | Epoch: 10, cross_entropy_loss: 0.192, unbalanced_acc_score: 0.924, balanced_acc_score: 0.927, roc_auc_score: 0.978, pr_auc_score: 0.99
+Validation ptbdb | Epoch: 10, cross_entropy_loss: 0.263, unbalanced_acc_score: 0.857, balanced_acc_score: 0.896, roc_auc_score: 0.983, pr_auc_score: 0.992
+Train ptbdb | Epoch: 11, cross_entropy_loss: 0.171, unbalanced_acc_score: 0.937, balanced_acc_score: 0.938, roc_auc_score: 0.982, pr_auc_score: 0.992
+Validation ptbdb | Epoch: 11, cross_entropy_loss: 0.17, unbalanced_acc_score: 0.934, balanced_acc_score: 0.938, roc_auc_score: 0.982, pr_auc_score: 0.992
+Saving the best checkpoint...
+Train ptbdb | Epoch: 12, cross_entropy_loss: 0.159, unbalanced_acc_score: 0.94, balanced_acc_score: 0.941, roc_auc_score: 0.984, pr_auc_score: 0.993
+Validation ptbdb | Epoch: 12, cross_entropy_loss: 0.163, unbalanced_acc_score: 0.925, balanced_acc_score: 0.938, roc_auc_score: 0.987, pr_auc_score: 0.993
+Saving the best checkpoint...
+Train ptbdb | Epoch: 13, cross_entropy_loss: 0.146, unbalanced_acc_score: 0.944, balanced_acc_score: 0.943, roc_auc_score: 0.987, pr_auc_score: 0.994
+Validation ptbdb | Epoch: 13, cross_entropy_loss: 0.163, unbalanced_acc_score: 0.951, balanced_acc_score: 0.935, roc_auc_score: 0.987, pr_auc_score: 0.994
+Train ptbdb | Epoch: 14, cross_entropy_loss: 0.142, unbalanced_acc_score: 0.949, balanced_acc_score: 0.948, roc_auc_score: 0.987, pr_auc_score: 0.994
+Validation ptbdb | Epoch: 14, cross_entropy_loss: 0.139, unbalanced_acc_score: 0.931, balanced_acc_score: 0.943, roc_auc_score: 0.99, pr_auc_score: 0.995
+Saving the best checkpoint...
+Train ptbdb | Epoch: 15, cross_entropy_loss: 0.13, unbalanced_acc_score: 0.953, balanced_acc_score: 0.953, roc_auc_score: 0.989, pr_auc_score: 0.995
+Validation ptbdb | Epoch: 15, cross_entropy_loss: 0.134, unbalanced_acc_score: 0.964, balanced_acc_score: 0.954, roc_auc_score: 0.99, pr_auc_score: 0.995
+Saving the best checkpoint...
+Train ptbdb | Epoch: 16, cross_entropy_loss: 0.114, unbalanced_acc_score: 0.959, balanced_acc_score: 0.959, roc_auc_score: 0.992, pr_auc_score: 0.996
+Validation ptbdb | Epoch: 16, cross_entropy_loss: 0.16, unbalanced_acc_score: 0.957, balanced_acc_score: 0.942, roc_auc_score: 0.989, pr_auc_score: 0.995
+Train ptbdb | Epoch: 17, cross_entropy_loss: 0.121, unbalanced_acc_score: 0.958, balanced_acc_score: 0.956, roc_auc_score: 0.991, pr_auc_score: 0.996
+Validation ptbdb | Epoch: 17, cross_entropy_loss: 0.141, unbalanced_acc_score: 0.932, balanced_acc_score: 0.945, roc_auc_score: 0.992, pr_auc_score: 0.996
+Train ptbdb | Epoch: 18, cross_entropy_loss: 0.096, unbalanced_acc_score: 0.968, balanced_acc_score: 0.966, roc_auc_score: 0.994, pr_auc_score: 0.997
+Validation ptbdb | Epoch: 18, cross_entropy_loss: 0.132, unbalanced_acc_score: 0.938, balanced_acc_score: 0.949, roc_auc_score: 0.992, pr_auc_score: 0.997
+Saving the best checkpoint...
+Train ptbdb | Epoch: 19, cross_entropy_loss: 0.105, unbalanced_acc_score: 0.963, balanced_acc_score: 0.962, roc_auc_score: 0.993, pr_auc_score: 0.997
+Validation ptbdb | Epoch: 19, cross_entropy_loss: 0.105, unbalanced_acc_score: 0.96, balanced_acc_score: 0.959, roc_auc_score: 0.993, pr_auc_score: 0.997
+Saving the best checkpoint...
+Train ptbdb | Epoch: 20, cross_entropy_loss: 0.094, unbalanced_acc_score: 0.967, balanced_acc_score: 0.965, roc_auc_score: 0.994, pr_auc_score: 0.998
+Validation ptbdb | Epoch: 20, cross_entropy_loss: 0.109, unbalanced_acc_score: 0.971, balanced_acc_score: 0.959, roc_auc_score: 0.994, pr_auc_score: 0.998
+Train ptbdb | Epoch: 21, cross_entropy_loss: 0.083, unbalanced_acc_score: 0.971, balanced_acc_score: 0.97, roc_auc_score: 0.995, pr_auc_score: 0.998
+Validation ptbdb | Epoch: 21, cross_entropy_loss: 0.112, unbalanced_acc_score: 0.948, balanced_acc_score: 0.956, roc_auc_score: 0.995, pr_auc_score: 0.998
+Train ptbdb | Epoch: 22, cross_entropy_loss: 0.085, unbalanced_acc_score: 0.97, balanced_acc_score: 0.968, roc_auc_score: 0.995, pr_auc_score: 0.998
+Validation ptbdb | Epoch: 22, cross_entropy_loss: 0.099, unbalanced_acc_score: 0.961, balanced_acc_score: 0.963, roc_auc_score: 0.995, pr_auc_score: 0.998
+Saving the best checkpoint...
+Train ptbdb | Epoch: 23, cross_entropy_loss: 0.077, unbalanced_acc_score: 0.972, balanced_acc_score: 0.971, roc_auc_score: 0.996, pr_auc_score: 0.998
+Validation ptbdb | Epoch: 23, cross_entropy_loss: 0.104, unbalanced_acc_score: 0.973, balanced_acc_score: 0.961, roc_auc_score: 0.996, pr_auc_score: 0.998
+Train ptbdb | Epoch: 24, cross_entropy_loss: 0.072, unbalanced_acc_score: 0.977, balanced_acc_score: 0.975, roc_auc_score: 0.997, pr_auc_score: 0.999
+Validation ptbdb | Epoch: 24, cross_entropy_loss: 0.082, unbalanced_acc_score: 0.967, balanced_acc_score: 0.967, roc_auc_score: 0.996, pr_auc_score: 0.998
+Saving the best checkpoint...
+Train ptbdb | Epoch: 25, cross_entropy_loss: 0.071, unbalanced_acc_score: 0.976, balanced_acc_score: 0.975, roc_auc_score: 0.997, pr_auc_score: 0.999
+Validation ptbdb | Epoch: 25, cross_entropy_loss: 0.081, unbalanced_acc_score: 0.97, balanced_acc_score: 0.968, roc_auc_score: 0.996, pr_auc_score: 0.999
+Saving the best checkpoint...
+Train ptbdb | Epoch: 26, cross_entropy_loss: 0.068, unbalanced_acc_score: 0.978, balanced_acc_score: 0.977, roc_auc_score: 0.997, pr_auc_score: 0.999
+Validation ptbdb | Epoch: 26, cross_entropy_loss: 0.09, unbalanced_acc_score: 0.978, balanced_acc_score: 0.968, roc_auc_score: 0.996, pr_auc_score: 0.998
+Train ptbdb | Epoch: 27, cross_entropy_loss: 0.053, unbalanced_acc_score: 0.984, balanced_acc_score: 0.983, roc_auc_score: 0.998, pr_auc_score: 0.999
+Validation ptbdb | Epoch: 27, cross_entropy_loss: 0.072, unbalanced_acc_score: 0.979, balanced_acc_score: 0.972, roc_auc_score: 0.997, pr_auc_score: 0.999
+Saving the best checkpoint...
+Train ptbdb | Epoch: 28, cross_entropy_loss: 0.056, unbalanced_acc_score: 0.981, balanced_acc_score: 0.98, roc_auc_score: 0.998, pr_auc_score: 0.999
+Validation ptbdb | Epoch: 28, cross_entropy_loss: 0.066, unbalanced_acc_score: 0.979, balanced_acc_score: 0.974, roc_auc_score: 0.997, pr_auc_score: 0.999
+Saving the best checkpoint...
+Train ptbdb | Epoch: 29, cross_entropy_loss: 0.061, unbalanced_acc_score: 0.977, balanced_acc_score: 0.976, roc_auc_score: 0.998, pr_auc_score: 0.999
+Validation ptbdb | Epoch: 29, cross_entropy_loss: 0.089, unbalanced_acc_score: 0.967, balanced_acc_score: 0.964, roc_auc_score: 0.996, pr_auc_score: 0.998
+Train ptbdb | Epoch: 30, cross_entropy_loss: 0.06, unbalanced_acc_score: 0.978, balanced_acc_score: 0.977, roc_auc_score: 0.998, pr_auc_score: 0.999
+Validation ptbdb | Epoch: 30, cross_entropy_loss: 0.196, unbalanced_acc_score: 0.928, balanced_acc_score: 0.947, roc_auc_score: 0.995, pr_auc_score: 0.998
+Train ptbdb | Epoch: 31, cross_entropy_loss: 0.056, unbalanced_acc_score: 0.98, balanced_acc_score: 0.98, roc_auc_score: 0.998, pr_auc_score: 0.999
+Validation ptbdb | Epoch: 31, cross_entropy_loss: 0.121, unbalanced_acc_score: 0.972, balanced_acc_score: 0.956, roc_auc_score: 0.997, pr_auc_score: 0.999
+Train ptbdb | Epoch: 32, cross_entropy_loss: 0.059, unbalanced_acc_score: 0.977, balanced_acc_score: 0.976, roc_auc_score: 0.998, pr_auc_score: 0.999
+Validation ptbdb | Epoch: 32, cross_entropy_loss: 0.062, unbalanced_acc_score: 0.983, balanced_acc_score: 0.98, roc_auc_score: 0.998, pr_auc_score: 0.999
+Saving the best checkpoint...
+Train ptbdb | Epoch: 33, cross_entropy_loss: 0.052, unbalanced_acc_score: 0.983, balanced_acc_score: 0.981, roc_auc_score: 0.998, pr_auc_score: 0.999
+Validation ptbdb | Epoch: 33, cross_entropy_loss: 0.086, unbalanced_acc_score: 0.969, balanced_acc_score: 0.97, roc_auc_score: 0.996, pr_auc_score: 0.999
+Train ptbdb | Epoch: 34, cross_entropy_loss: 0.044, unbalanced_acc_score: 0.984, balanced_acc_score: 0.983, roc_auc_score: 0.999, pr_auc_score: 1.0
+Validation ptbdb | Epoch: 34, cross_entropy_loss: 0.064, unbalanced_acc_score: 0.979, balanced_acc_score: 0.974, roc_auc_score: 0.998, pr_auc_score: 0.999
+Train ptbdb | Epoch: 35, cross_entropy_loss: 0.046, unbalanced_acc_score: 0.983, balanced_acc_score: 0.982, roc_auc_score: 0.999, pr_auc_score: 0.999
+Validation ptbdb | Epoch: 35, cross_entropy_loss: 0.138, unbalanced_acc_score: 0.969, balanced_acc_score: 0.946, roc_auc_score: 0.997, pr_auc_score: 0.999
+Train ptbdb | Epoch: 36, cross_entropy_loss: 0.039, unbalanced_acc_score: 0.987, balanced_acc_score: 0.986, roc_auc_score: 0.999, pr_auc_score: 1.0
+Validation ptbdb | Epoch: 36, cross_entropy_loss: 0.117, unbalanced_acc_score: 0.949, balanced_acc_score: 0.962, roc_auc_score: 0.998, pr_auc_score: 0.999
+Train ptbdb | Epoch: 37, cross_entropy_loss: 0.056, unbalanced_acc_score: 0.98, balanced_acc_score: 0.979, roc_auc_score: 0.998, pr_auc_score: 0.999
+Validation ptbdb | Epoch: 37, cross_entropy_loss: 0.068, unbalanced_acc_score: 0.97, balanced_acc_score: 0.975, roc_auc_score: 0.998, pr_auc_score: 0.999
+Train ptbdb | Epoch: 38, cross_entropy_loss: 0.034, unbalanced_acc_score: 0.988, balanced_acc_score: 0.988, roc_auc_score: 0.999, pr_auc_score: 1.0
+Validation ptbdb | Epoch: 38, cross_entropy_loss: 0.062, unbalanced_acc_score: 0.976, balanced_acc_score: 0.973, roc_auc_score: 0.998, pr_auc_score: 0.999
+Saving the best checkpoint...
+Train ptbdb | Epoch: 39, cross_entropy_loss: 0.029, unbalanced_acc_score: 0.99, balanced_acc_score: 0.99, roc_auc_score: 0.999, pr_auc_score: 1.0
+Validation ptbdb | Epoch: 39, cross_entropy_loss: 0.124, unbalanced_acc_score: 0.973, balanced_acc_score: 0.956, roc_auc_score: 0.998, pr_auc_score: 0.999
+Train ptbdb | Epoch: 40, cross_entropy_loss: 0.051, unbalanced_acc_score: 0.983, balanced_acc_score: 0.982, roc_auc_score: 0.998, pr_auc_score: 0.999
+Validation ptbdb | Epoch: 40, cross_entropy_loss: 0.197, unbalanced_acc_score: 0.957, balanced_acc_score: 0.927, roc_auc_score: 0.996, pr_auc_score: 0.998
+Train ptbdb | Epoch: 41, cross_entropy_loss: 0.031, unbalanced_acc_score: 0.989, balanced_acc_score: 0.989, roc_auc_score: 0.999, pr_auc_score: 1.0
+Validation ptbdb | Epoch: 41, cross_entropy_loss: 0.053, unbalanced_acc_score: 0.983, balanced_acc_score: 0.982, roc_auc_score: 0.998, pr_auc_score: 0.999
+Saving the best checkpoint...
+Train ptbdb | Epoch: 42, cross_entropy_loss: 0.039, unbalanced_acc_score: 0.987, balanced_acc_score: 0.986, roc_auc_score: 0.999, pr_auc_score: 1.0
+Validation ptbdb | Epoch: 42, cross_entropy_loss: 0.077, unbalanced_acc_score: 0.97, balanced_acc_score: 0.977, roc_auc_score: 0.998, pr_auc_score: 0.999
+Train ptbdb | Epoch: 43, cross_entropy_loss: 0.051, unbalanced_acc_score: 0.983, balanced_acc_score: 0.981, roc_auc_score: 0.998, pr_auc_score: 0.999
+Validation ptbdb | Epoch: 43, cross_entropy_loss: 0.073, unbalanced_acc_score: 0.973, balanced_acc_score: 0.972, roc_auc_score: 0.997, pr_auc_score: 0.999
+Train ptbdb | Epoch: 44, cross_entropy_loss: 0.034, unbalanced_acc_score: 0.988, balanced_acc_score: 0.987, roc_auc_score: 0.999, pr_auc_score: 1.0
+Validation ptbdb | Epoch: 44, cross_entropy_loss: 0.064, unbalanced_acc_score: 0.985, balanced_acc_score: 0.978, roc_auc_score: 0.998, pr_auc_score: 0.999
+Train ptbdb | Epoch: 45, cross_entropy_loss: 0.031, unbalanced_acc_score: 0.989, balanced_acc_score: 0.988, roc_auc_score: 0.999, pr_auc_score: 1.0
+Validation ptbdb | Epoch: 45, cross_entropy_loss: 0.066, unbalanced_acc_score: 0.985, balanced_acc_score: 0.98, roc_auc_score: 0.998, pr_auc_score: 0.999
+Train ptbdb | Epoch: 46, cross_entropy_loss: 0.027, unbalanced_acc_score: 0.991, balanced_acc_score: 0.99, roc_auc_score: 0.999, pr_auc_score: 1.0
+Validation ptbdb | Epoch: 46, cross_entropy_loss: 0.075, unbalanced_acc_score: 0.97, balanced_acc_score: 0.976, roc_auc_score: 0.998, pr_auc_score: 0.999
+Train ptbdb | Epoch: 47, cross_entropy_loss: 0.049, unbalanced_acc_score: 0.983, balanced_acc_score: 0.982, roc_auc_score: 0.998, pr_auc_score: 0.999
+Validation ptbdb | Epoch: 47, cross_entropy_loss: 0.086, unbalanced_acc_score: 0.965, balanced_acc_score: 0.972, roc_auc_score: 0.998, pr_auc_score: 0.999
+Train ptbdb | Epoch: 48, cross_entropy_loss: 0.014, unbalanced_acc_score: 0.995, balanced_acc_score: 0.995, roc_auc_score: 1.0, pr_auc_score: 1.0
+Validation ptbdb | Epoch: 48, cross_entropy_loss: 0.046, unbalanced_acc_score: 0.987, balanced_acc_score: 0.985, roc_auc_score: 0.999, pr_auc_score: 1.0
+Saving the best checkpoint...
+Train ptbdb | Epoch: 49, cross_entropy_loss: 0.009, unbalanced_acc_score: 0.998, balanced_acc_score: 0.998, roc_auc_score: 1.0, pr_auc_score: 1.0
+Validation ptbdb | Epoch: 49, cross_entropy_loss: 0.046, unbalanced_acc_score: 0.989, balanced_acc_score: 0.986, roc_auc_score: 0.999, pr_auc_score: 1.0
+Train ptbdb | Epoch: 50, cross_entropy_loss: 0.008, unbalanced_acc_score: 0.998, balanced_acc_score: 0.998, roc_auc_score: 1.0, pr_auc_score: 1.0
+Validation ptbdb | Epoch: 50, cross_entropy_loss: 0.05, unbalanced_acc_score: 0.989, balanced_acc_score: 0.985, roc_auc_score: 0.999, pr_auc_score: 0.999
+Train ptbdb | Epoch: 51, cross_entropy_loss: 0.007, unbalanced_acc_score: 0.999, balanced_acc_score: 0.998, roc_auc_score: 1.0, pr_auc_score: 1.0
+Validation ptbdb | Epoch: 51, cross_entropy_loss: 0.047, unbalanced_acc_score: 0.988, balanced_acc_score: 0.986, roc_auc_score: 0.999, pr_auc_score: 1.0
+Train ptbdb | Epoch: 52, cross_entropy_loss: 0.007, unbalanced_acc_score: 0.999, balanced_acc_score: 0.999, roc_auc_score: 1.0, pr_auc_score: 1.0
+Validation ptbdb | Epoch: 52, cross_entropy_loss: 0.052, unbalanced_acc_score: 0.989, balanced_acc_score: 0.985, roc_auc_score: 0.999, pr_auc_score: 0.999
+Train ptbdb | Epoch: 53, cross_entropy_loss: 0.006, unbalanced_acc_score: 0.999, balanced_acc_score: 0.998, roc_auc_score: 1.0, pr_auc_score: 1.0
+Validation ptbdb | Epoch: 53, cross_entropy_loss: 0.049, unbalanced_acc_score: 0.988, balanced_acc_score: 0.985, roc_auc_score: 0.999, pr_auc_score: 1.0
+Train ptbdb | Epoch: 54, cross_entropy_loss: 0.006, unbalanced_acc_score: 0.999, balanced_acc_score: 0.999, roc_auc_score: 1.0, pr_auc_score: 1.0
+Validation ptbdb | Epoch: 54, cross_entropy_loss: 0.048, unbalanced_acc_score: 0.987, balanced_acc_score: 0.984, roc_auc_score: 0.999, pr_auc_score: 1.0
+Train ptbdb | Epoch: 55, cross_entropy_loss: 0.005, unbalanced_acc_score: 0.999, balanced_acc_score: 0.999, roc_auc_score: 1.0, pr_auc_score: 1.0
+Validation ptbdb | Epoch: 55, cross_entropy_loss: 0.049, unbalanced_acc_score: 0.988, balanced_acc_score: 0.984, roc_auc_score: 0.999, pr_auc_score: 1.0
+Train ptbdb | Epoch: 56, cross_entropy_loss: 0.005, unbalanced_acc_score: 0.999, balanced_acc_score: 0.999, roc_auc_score: 1.0, pr_auc_score: 1.0
+Validation ptbdb | Epoch: 56, cross_entropy_loss: 0.05, unbalanced_acc_score: 0.988, balanced_acc_score: 0.984, roc_auc_score: 0.999, pr_auc_score: 1.0
+Train ptbdb | Epoch: 57, cross_entropy_loss: 0.005, unbalanced_acc_score: 0.999, balanced_acc_score: 0.999, roc_auc_score: 1.0, pr_auc_score: 1.0
+Validation ptbdb | Epoch: 57, cross_entropy_loss: 0.05, unbalanced_acc_score: 0.988, balanced_acc_score: 0.984, roc_auc_score: 0.999, pr_auc_score: 1.0
+Train ptbdb | Epoch: 58, cross_entropy_loss: 0.005, unbalanced_acc_score: 0.999, balanced_acc_score: 0.999, roc_auc_score: 1.0, pr_auc_score: 1.0
+Validation ptbdb | Epoch: 58, cross_entropy_loss: 0.049, unbalanced_acc_score: 0.988, balanced_acc_score: 0.985, roc_auc_score: 0.999, pr_auc_score: 1.0
+Train ptbdb | Epoch: 59, cross_entropy_loss: 0.005, unbalanced_acc_score: 0.999, balanced_acc_score: 0.999, roc_auc_score: 1.0, pr_auc_score: 1.0
+Validation ptbdb | Epoch: 59, cross_entropy_loss: 0.051, unbalanced_acc_score: 0.988, balanced_acc_score: 0.985, roc_auc_score: 0.999, pr_auc_score: 1.0
+Train ptbdb | Epoch: 60, cross_entropy_loss: 0.005, unbalanced_acc_score: 0.999, balanced_acc_score: 0.999, roc_auc_score: 1.0, pr_auc_score: 1.0
+Validation ptbdb | Epoch: 60, cross_entropy_loss: 0.05, unbalanced_acc_score: 0.988, balanced_acc_score: 0.985, roc_auc_score: 0.999, pr_auc_score: 1.0
+Train ptbdb | Epoch: 61, cross_entropy_loss: 0.005, unbalanced_acc_score: 0.999, balanced_acc_score: 0.999, roc_auc_score: 1.0, pr_auc_score: 1.0
+Validation ptbdb | Epoch: 61, cross_entropy_loss: 0.05, unbalanced_acc_score: 0.988, balanced_acc_score: 0.985, roc_auc_score: 0.999, pr_auc_score: 1.0
+Train ptbdb | Epoch: 62, cross_entropy_loss: 0.005, unbalanced_acc_score: 0.999, balanced_acc_score: 0.999, roc_auc_score: 1.0, pr_auc_score: 1.0
+Validation ptbdb | Epoch: 62, cross_entropy_loss: 0.05, unbalanced_acc_score: 0.988, balanced_acc_score: 0.985, roc_auc_score: 0.999, pr_auc_score: 1.0
+Train ptbdb | Epoch: 63, cross_entropy_loss: 0.005, unbalanced_acc_score: 0.999, balanced_acc_score: 0.999, roc_auc_score: 1.0, pr_auc_score: 1.0
+Validation ptbdb | Epoch: 63, cross_entropy_loss: 0.05, unbalanced_acc_score: 0.987, balanced_acc_score: 0.984, roc_auc_score: 0.999, pr_auc_score: 1.0
+Total number of trainable parameters in inception_net model: 66857
+Test ptbdb | cross_entropy_loss: 0.077, unbalanced_acc_score: 0.982, balanced_acc_score: 0.979, roc_auc_score: 0.996, pr_auc_score: 0.997

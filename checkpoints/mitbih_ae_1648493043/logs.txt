@@ -1,0 +1,297 @@
+Dataset name: mitbih, Model name: ae, Transfer learning: False, RNN freeze: never, RNN Bidirectional: False, RNN Num Layers: 1
+Total number of trainable parameters in ae model: 11888
+Train mitbih | Epoch: 1, mse_loss: 0.058
+Validation mitbih | Epoch: 1, mse_loss: 0.016
+Saving the best checkpoint...
+Train mitbih | Epoch: 2, mse_loss: 0.016
+Validation mitbih | Epoch: 2, mse_loss: 0.013
+Saving the best checkpoint...
+Train mitbih | Epoch: 3, mse_loss: 0.013
+Validation mitbih | Epoch: 3, mse_loss: 0.01
+Saving the best checkpoint...
+Train mitbih | Epoch: 4, mse_loss: 0.011
+Validation mitbih | Epoch: 4, mse_loss: 0.009
+Saving the best checkpoint...
+Train mitbih | Epoch: 5, mse_loss: 0.01
+Validation mitbih | Epoch: 5, mse_loss: 0.008
+Saving the best checkpoint...
+Train mitbih | Epoch: 6, mse_loss: 0.009
+Validation mitbih | Epoch: 6, mse_loss: 0.008
+Saving the best checkpoint...
+Train mitbih | Epoch: 7, mse_loss: 0.009
+Validation mitbih | Epoch: 7, mse_loss: 0.007
+Saving the best checkpoint...
+Train mitbih | Epoch: 8, mse_loss: 0.009
+Validation mitbih | Epoch: 8, mse_loss: 0.007
+Saving the best checkpoint...
+Train mitbih | Epoch: 9, mse_loss: 0.008
+Validation mitbih | Epoch: 9, mse_loss: 0.007
+Saving the best checkpoint...
+Train mitbih | Epoch: 10, mse_loss: 0.008
+Validation mitbih | Epoch: 10, mse_loss: 0.007
+Saving the best checkpoint...
+Train mitbih | Epoch: 11, mse_loss: 0.008
+Validation mitbih | Epoch: 11, mse_loss: 0.007
+Saving the best checkpoint...
+Train mitbih | Epoch: 12, mse_loss: 0.008
+Validation mitbih | Epoch: 12, mse_loss: 0.007
+Saving the best checkpoint...
+Train mitbih | Epoch: 13, mse_loss: 0.008
+Validation mitbih | Epoch: 13, mse_loss: 0.007
+Train mitbih | Epoch: 14, mse_loss: 0.008
+Validation mitbih | Epoch: 14, mse_loss: 0.007
+Saving the best checkpoint...
+Train mitbih | Epoch: 15, mse_loss: 0.008
+Validation mitbih | Epoch: 15, mse_loss: 0.006
+Saving the best checkpoint...
+Train mitbih | Epoch: 16, mse_loss: 0.008
+Validation mitbih | Epoch: 16, mse_loss: 0.006
+Saving the best checkpoint...
+Train mitbih | Epoch: 17, mse_loss: 0.008
+Validation mitbih | Epoch: 17, mse_loss: 0.006
+Saving the best checkpoint...
+Train mitbih | Epoch: 18, mse_loss: 0.008
+Validation mitbih | Epoch: 18, mse_loss: 0.006
+Train mitbih | Epoch: 19, mse_loss: 0.007
+Validation mitbih | Epoch: 19, mse_loss: 0.006
+Saving the best checkpoint...
+Train mitbih | Epoch: 20, mse_loss: 0.007
+Validation mitbih | Epoch: 20, mse_loss: 0.006
+Saving the best checkpoint...
+Train mitbih | Epoch: 21, mse_loss: 0.007
+Validation mitbih | Epoch: 21, mse_loss: 0.006
+Train mitbih | Epoch: 22, mse_loss: 0.007
+Validation mitbih | Epoch: 22, mse_loss: 0.006
+Saving the best checkpoint...
+Train mitbih | Epoch: 23, mse_loss: 0.007
+Validation mitbih | Epoch: 23, mse_loss: 0.006
+Train mitbih | Epoch: 24, mse_loss: 0.007
+Validation mitbih | Epoch: 24, mse_loss: 0.006
+Saving the best checkpoint...
+Train mitbih | Epoch: 25, mse_loss: 0.007
+Validation mitbih | Epoch: 25, mse_loss: 0.006
+Saving the best checkpoint...
+Train mitbih | Epoch: 26, mse_loss: 0.007
+Validation mitbih | Epoch: 26, mse_loss: 0.006
+Saving the best checkpoint...
+Train mitbih | Epoch: 27, mse_loss: 0.007
+Validation mitbih | Epoch: 27, mse_loss: 0.006
+Train mitbih | Epoch: 28, mse_loss: 0.007
+Validation mitbih | Epoch: 28, mse_loss: 0.006
+Train mitbih | Epoch: 29, mse_loss: 0.007
+Validation mitbih | Epoch: 29, mse_loss: 0.006
+Saving the best checkpoint...
+Train mitbih | Epoch: 30, mse_loss: 0.007
+Validation mitbih | Epoch: 30, mse_loss: 0.006
+Saving the best checkpoint...
+Train mitbih | Epoch: 31, mse_loss: 0.007
+Validation mitbih | Epoch: 31, mse_loss: 0.006
+Saving the best checkpoint...
+Train mitbih | Epoch: 32, mse_loss: 0.007
+Validation mitbih | Epoch: 32, mse_loss: 0.006
+Train mitbih | Epoch: 33, mse_loss: 0.007
+Validation mitbih | Epoch: 33, mse_loss: 0.006
+Saving the best checkpoint...
+Train mitbih | Epoch: 34, mse_loss: 0.007
+Validation mitbih | Epoch: 34, mse_loss: 0.006
+Saving the best checkpoint...
+Train mitbih | Epoch: 35, mse_loss: 0.007
+Validation mitbih | Epoch: 35, mse_loss: 0.006
+Train mitbih | Epoch: 36, mse_loss: 0.007
+Validation mitbih | Epoch: 36, mse_loss: 0.006
+Saving the best checkpoint...
+Train mitbih | Epoch: 37, mse_loss: 0.007
+Validation mitbih | Epoch: 37, mse_loss: 0.006
+Train mitbih | Epoch: 38, mse_loss: 0.007
+Validation mitbih | Epoch: 38, mse_loss: 0.006
+Train mitbih | Epoch: 39, mse_loss: 0.007
+Validation mitbih | Epoch: 39, mse_loss: 0.006
+Saving the best checkpoint...
+Train mitbih | Epoch: 40, mse_loss: 0.007
+Validation mitbih | Epoch: 40, mse_loss: 0.006
+Train mitbih | Epoch: 41, mse_loss: 0.007
+Validation mitbih | Epoch: 41, mse_loss: 0.006
+Train mitbih | Epoch: 42, mse_loss: 0.007
+Validation mitbih | Epoch: 42, mse_loss: 0.006
+Saving the best checkpoint...
+Train mitbih | Epoch: 43, mse_loss: 0.007
+Validation mitbih | Epoch: 43, mse_loss: 0.006
+Saving the best checkpoint...
+Train mitbih | Epoch: 44, mse_loss: 0.007
+Validation mitbih | Epoch: 44, mse_loss: 0.006
+Saving the best checkpoint...
+Train mitbih | Epoch: 45, mse_loss: 0.007
+Validation mitbih | Epoch: 45, mse_loss: 0.006
+Saving the best checkpoint...
+Train mitbih | Epoch: 46, mse_loss: 0.007
+Validation mitbih | Epoch: 46, mse_loss: 0.006
+Train mitbih | Epoch: 47, mse_loss: 0.007
+Validation mitbih | Epoch: 47, mse_loss: 0.006
+Train mitbih | Epoch: 48, mse_loss: 0.007
+Validation mitbih | Epoch: 48, mse_loss: 0.005
+Saving the best checkpoint...
+Train mitbih | Epoch: 49, mse_loss: 0.007
+Validation mitbih | Epoch: 49, mse_loss: 0.006
+Train mitbih | Epoch: 50, mse_loss: 0.007
+Validation mitbih | Epoch: 50, mse_loss: 0.005
+Train mitbih | Epoch: 51, mse_loss: 0.007
+Validation mitbih | Epoch: 51, mse_loss: 0.005
+Saving the best checkpoint...
+Train mitbih | Epoch: 52, mse_loss: 0.007
+Validation mitbih | Epoch: 52, mse_loss: 0.006
+Train mitbih | Epoch: 53, mse_loss: 0.007
+Validation mitbih | Epoch: 53, mse_loss: 0.005
+Saving the best checkpoint...
+Train mitbih | Epoch: 54, mse_loss: 0.007
+Validation mitbih | Epoch: 54, mse_loss: 0.006
+Train mitbih | Epoch: 55, mse_loss: 0.007
+Validation mitbih | Epoch: 55, mse_loss: 0.006
+Train mitbih | Epoch: 56, mse_loss: 0.007
+Validation mitbih | Epoch: 56, mse_loss: 0.006
+Train mitbih | Epoch: 57, mse_loss: 0.007
+Validation mitbih | Epoch: 57, mse_loss: 0.005
+Train mitbih | Epoch: 58, mse_loss: 0.007
+Validation mitbih | Epoch: 58, mse_loss: 0.005
+Train mitbih | Epoch: 59, mse_loss: 0.007
+Validation mitbih | Epoch: 59, mse_loss: 0.005
+Train mitbih | Epoch: 60, mse_loss: 0.007
+Validation mitbih | Epoch: 60, mse_loss: 0.005
+Saving the best checkpoint...
+Train mitbih | Epoch: 61, mse_loss: 0.007
+Validation mitbih | Epoch: 61, mse_loss: 0.005
+Saving the best checkpoint...
+Train mitbih | Epoch: 62, mse_loss: 0.007
+Validation mitbih | Epoch: 62, mse_loss: 0.005
+Saving the best checkpoint...
+Train mitbih | Epoch: 63, mse_loss: 0.007
+Validation mitbih | Epoch: 63, mse_loss: 0.005
+Saving the best checkpoint...
+Train mitbih | Epoch: 64, mse_loss: 0.007
+Validation mitbih | Epoch: 64, mse_loss: 0.005
+Train mitbih | Epoch: 65, mse_loss: 0.007
+Validation mitbih | Epoch: 65, mse_loss: 0.005
+Saving the best checkpoint...
+Train mitbih | Epoch: 66, mse_loss: 0.007
+Validation mitbih | Epoch: 66, mse_loss: 0.005
+Saving the best checkpoint...
+Train mitbih | Epoch: 67, mse_loss: 0.007
+Validation mitbih | Epoch: 67, mse_loss: 0.005
+Train mitbih | Epoch: 68, mse_loss: 0.007
+Validation mitbih | Epoch: 68, mse_loss: 0.005
+Train mitbih | Epoch: 69, mse_loss: 0.007
+Validation mitbih | Epoch: 69, mse_loss: 0.005
+Train mitbih | Epoch: 70, mse_loss: 0.007
+Validation mitbih | Epoch: 70, mse_loss: 0.005
+Train mitbih | Epoch: 71, mse_loss: 0.007
+Validation mitbih | Epoch: 71, mse_loss: 0.005
+Saving the best checkpoint...
+Train mitbih | Epoch: 72, mse_loss: 0.007
+Validation mitbih | Epoch: 72, mse_loss: 0.005
+Train mitbih | Epoch: 73, mse_loss: 0.007
+Validation mitbih | Epoch: 73, mse_loss: 0.005
+Train mitbih | Epoch: 74, mse_loss: 0.007
+Validation mitbih | Epoch: 74, mse_loss: 0.005
+Saving the best checkpoint...
+Train mitbih | Epoch: 75, mse_loss: 0.007
+Validation mitbih | Epoch: 75, mse_loss: 0.005
+Saving the best checkpoint...
+Train mitbih | Epoch: 76, mse_loss: 0.007
+Validation mitbih | Epoch: 76, mse_loss: 0.005
+Train mitbih | Epoch: 77, mse_loss: 0.007
+Validation mitbih | Epoch: 77, mse_loss: 0.005
+Train mitbih | Epoch: 78, mse_loss: 0.007
+Validation mitbih | Epoch: 78, mse_loss: 0.005
+Train mitbih | Epoch: 79, mse_loss: 0.007
+Validation mitbih | Epoch: 79, mse_loss: 0.005
+Train mitbih | Epoch: 80, mse_loss: 0.007
+Validation mitbih | Epoch: 80, mse_loss: 0.005
+Train mitbih | Epoch: 81, mse_loss: 0.007
+Validation mitbih | Epoch: 81, mse_loss: 0.005
+Saving the best checkpoint...
+Train mitbih | Epoch: 82, mse_loss: 0.007
+Validation mitbih | Epoch: 82, mse_loss: 0.005
+Train mitbih | Epoch: 83, mse_loss: 0.007
+Validation mitbih | Epoch: 83, mse_loss: 0.005
+Saving the best checkpoint...
+Train mitbih | Epoch: 84, mse_loss: 0.007
+Validation mitbih | Epoch: 84, mse_loss: 0.005
+Train mitbih | Epoch: 85, mse_loss: 0.007
+Validation mitbih | Epoch: 85, mse_loss: 0.005
+Train mitbih | Epoch: 86, mse_loss: 0.007
+Validation mitbih | Epoch: 86, mse_loss: 0.005
+Train mitbih | Epoch: 87, mse_loss: 0.007
+Validation mitbih | Epoch: 87, mse_loss: 0.005
+Train mitbih | Epoch: 88, mse_loss: 0.007
+Validation mitbih | Epoch: 88, mse_loss: 0.005
+Train mitbih | Epoch: 89, mse_loss: 0.007
+Validation mitbih | Epoch: 89, mse_loss: 0.005
+Train mitbih | Epoch: 90, mse_loss: 0.007
+Validation mitbih | Epoch: 90, mse_loss: 0.005
+Train mitbih | Epoch: 91, mse_loss: 0.007
+Validation mitbih | Epoch: 91, mse_loss: 0.005
+Train mitbih | Epoch: 92, mse_loss: 0.007
+Validation mitbih | Epoch: 92, mse_loss: 0.005
+Saving the best checkpoint...
+Train mitbih | Epoch: 93, mse_loss: 0.007
+Validation mitbih | Epoch: 93, mse_loss: 0.005
+Train mitbih | Epoch: 94, mse_loss: 0.007
+Validation mitbih | Epoch: 94, mse_loss: 0.005
+Train mitbih | Epoch: 95, mse_loss: 0.007
+Validation mitbih | Epoch: 95, mse_loss: 0.005
+Train mitbih | Epoch: 96, mse_loss: 0.007
+Validation mitbih | Epoch: 96, mse_loss: 0.005
+Train mitbih | Epoch: 97, mse_loss: 0.007
+Validation mitbih | Epoch: 97, mse_loss: 0.005
+Train mitbih | Epoch: 98, mse_loss: 0.007
+Validation mitbih | Epoch: 98, mse_loss: 0.005
+Train mitbih | Epoch: 99, mse_loss: 0.007
+Validation mitbih | Epoch: 99, mse_loss: 0.005
+Train mitbih | Epoch: 100, mse_loss: 0.007
+Validation mitbih | Epoch: 100, mse_loss: 0.005
+Train mitbih | Epoch: 101, mse_loss: 0.007
+Validation mitbih | Epoch: 101, mse_loss: 0.005
+Train mitbih | Epoch: 102, mse_loss: 0.007
+Validation mitbih | Epoch: 102, mse_loss: 0.005
+Train mitbih | Epoch: 103, mse_loss: 0.007
+Validation mitbih | Epoch: 103, mse_loss: 0.005
+Train mitbih | Epoch: 104, mse_loss: 0.007
+Validation mitbih | Epoch: 104, mse_loss: 0.005
+Train mitbih | Epoch: 105, mse_loss: 0.007
+Validation mitbih | Epoch: 105, mse_loss: 0.005
+Train mitbih | Epoch: 106, mse_loss: 0.007
+Validation mitbih | Epoch: 106, mse_loss: 0.005
+Train mitbih | Epoch: 107, mse_loss: 0.007
+Validation mitbih | Epoch: 107, mse_loss: 0.005
+Saving the best checkpoint...
+Train mitbih | Epoch: 108, mse_loss: 0.007
+Validation mitbih | Epoch: 108, mse_loss: 0.005
+Train mitbih | Epoch: 109, mse_loss: 0.007
+Validation mitbih | Epoch: 109, mse_loss: 0.005
+Train mitbih | Epoch: 110, mse_loss: 0.007
+Validation mitbih | Epoch: 110, mse_loss: 0.005
+Train mitbih | Epoch: 111, mse_loss: 0.007
+Validation mitbih | Epoch: 111, mse_loss: 0.005
+Train mitbih | Epoch: 112, mse_loss: 0.007
+Validation mitbih | Epoch: 112, mse_loss: 0.005
+Train mitbih | Epoch: 113, mse_loss: 0.007
+Validation mitbih | Epoch: 113, mse_loss: 0.005
+Train mitbih | Epoch: 114, mse_loss: 0.007
+Validation mitbih | Epoch: 114, mse_loss: 0.005
+Train mitbih | Epoch: 115, mse_loss: 0.007
+Validation mitbih | Epoch: 115, mse_loss: 0.005
+Train mitbih | Epoch: 116, mse_loss: 0.007
+Validation mitbih | Epoch: 116, mse_loss: 0.005
+Train mitbih | Epoch: 117, mse_loss: 0.007
+Validation mitbih | Epoch: 117, mse_loss: 0.005
+Train mitbih | Epoch: 118, mse_loss: 0.007
+Validation mitbih | Epoch: 118, mse_loss: 0.005
+Train mitbih | Epoch: 119, mse_loss: 0.007
+Validation mitbih | Epoch: 119, mse_loss: 0.005
+Train mitbih | Epoch: 120, mse_loss: 0.007
+Validation mitbih | Epoch: 120, mse_loss: 0.005
+Train mitbih | Epoch: 121, mse_loss: 0.007
+Validation mitbih | Epoch: 121, mse_loss: 0.005
+Train mitbih | Epoch: 122, mse_loss: 0.007
+Validation mitbih | Epoch: 122, mse_loss: 0.005
+Total number of trainable parameters in ae model: 11888
+Test mitbih | unbalanced_acc_score: 0.938, balanced_acc_score: 0.639

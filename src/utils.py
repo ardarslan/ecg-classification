@@ -11,7 +11,7 @@ from sklearn.metrics import (
     average_precision_score,
     balanced_accuracy_score,
 )
-from model import CNN, RNN, Autoencoder, InceptionNet, AttentionRNN
+from model import CNN, RNN, Autoencoder, InceptionNet, SharedMLPOverRNN
 from dataset import MitbihDataset, PtbdbDataset
 
 
@@ -31,7 +31,7 @@ def get_data_loader(cfg, split, shuffle):
         shuffle=shuffle,
         num_workers=cfg["num_workers"],
         pin_memory=False,
-        drop_last=True,
+        drop_last=False,
     )
     return data_loader
 
@@ -40,9 +40,13 @@ def get_checkpoints_dir(cfg):
     model_name = cfg["model_name"]
     if "rnn" in model_name and cfg["rnn_bidirectional"]:
         model_name = "bidirectional_" + model_name
+    if cfg["transfer_learning"]:
+        dataset_name = "ptbdb"
+    else:
+        dataset_name = cfg["dataset_name"]
     checkpoints_dir = os.path.join(
         cfg["checkpoints_dir"],
-        cfg["dataset_name"] + "_" + model_name + "_" + cfg["experiment_time"],
+        dataset_name + "_" + model_name + "_" + cfg["experiment_time"],
     )
     os.makedirs(checkpoints_dir, exist_ok=True)
     return checkpoints_dir
@@ -70,10 +74,11 @@ def save_predictions_to_disk(all_y, all_yhat, split, cfg, use_logits):
         if use_logits:
             logit_1 = all_yhat
             prob_1 = expit(logit_1)
-            prob_0 = 1 - prob_1
-            all_yhat_probs = np.hstack((prob_0, prob_1))
         else:
-            all_yhat_probs = all_yhat
+            prob_1 = all_yhat
+
+        prob_0 = 1 - prob_1
+        all_yhat_probs = np.hstack((prob_0, prob_1))
         columns = ["prob_0", "prob_1", "label"]
     df = pd.DataFrame(
         np.hstack((all_yhat_probs, all_y.reshape(-1, 1))), columns=columns
@@ -82,8 +87,8 @@ def save_predictions_to_disk(all_y, all_yhat, split, cfg, use_logits):
 
 
 def get_model(cfg):
-    if "attention" in cfg["model_name"]:
-        model = AttentionRNN
+    if "sharedmlpover" in cfg["model_name"]:
+        model = SharedMLPOverRNN
     elif "inception" in cfg["model_name"]:
         model = InceptionNet
     elif "rnn" in cfg["model_name"]:
@@ -169,7 +174,7 @@ def evaluate_predictions(all_y, all_yhat, class_weights, cfg, use_logits):
                     torch.tensor(
                         all_yhat, device=cfg["device"], dtype=torch.float
                     ).squeeze(),
-                    torch.tensor(all_y, device=cfg["device"], dtype=torch.long),
+                    torch.tensor(all_y, device=cfg["device"], dtype=torch.float),
                 )
             )
         else:

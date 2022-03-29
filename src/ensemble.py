@@ -132,7 +132,7 @@ def eval_ensemble_preds(labels: np.ndarray, preds: np.ndarray, cfg: dict) -> dic
 
     # If we have more than 1 dimension, predictions are given as probabilities
     # and so map them to class predictions.
-    if len(preds.shape) > 1:
+    if preds.shape[1] > 1:
         preds = np.argmax(preds, axis=1)
     result_dict["unbalanced_acc_score"] = accuracy_score(labels, preds)
     result_dict["balanced_acc_score"] = balanced_accuracy_score(labels, preds)
@@ -143,7 +143,7 @@ def eval_ensemble_preds(labels: np.ndarray, preds: np.ndarray, cfg: dict) -> dic
 def run_ensemble(cfg: dict) -> None:
 
     X_train, y_train, X_val, y_val, X_test, y_test = create_ensemble_datasets(
-        cfg, excluded_models=[]
+        cfg, excluded_models=["baseline_cnn"]
     )
 
     if "majority_ensemble" == cfg["model_name"]:
@@ -167,14 +167,23 @@ def run_ensemble(cfg: dict) -> None:
         y_hat_val = log_reg.predict_proba(X_val)
         y_hat_test = log_reg.predict_proba(X_test)
 
+        if cfg["dataset_name"] == "ptbdb":
+            y_hat_train_save = y_hat_train[:, 1:]
+            y_hat_val_save = y_hat_val[:, 1:]
+            y_hat_test_save = y_hat_test[:, 1:]
+        else:
+            y_hat_train_save = y_hat_train
+            y_hat_val_save = y_hat_val
+            y_hat_test_save = y_hat_test
+
         save_predictions_to_disk(
-            y_train.to_numpy(), y_hat_train, "train", cfg, use_logits=False
+            y_train.to_numpy(), y_hat_train_save, "train", cfg, use_logits=False
         )
         save_predictions_to_disk(
-            y_val.to_numpy(), y_hat_val, "val", cfg, use_logits=False
+            y_val.to_numpy(), y_hat_val_save, "val", cfg, use_logits=False
         )
         save_predictions_to_disk(
-            y_test.to_numpy(), y_hat_test, "test", cfg, use_logits=False
+            y_test.to_numpy(), y_hat_test_save, "test", cfg, use_logits=False
         )
 
     test_loss_dict = eval_ensemble_preds(y_test.to_numpy(), y_hat_test, cfg)
