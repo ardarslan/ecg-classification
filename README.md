@@ -1,3 +1,7 @@
+# Data Location
+Create a folder named "data" in the main directory.
+Put "mitbih_test.csv", "mitbih_train.csv", "ptbdb_abnormal.csv", "ptbdb_normal.csv" inside.
+
 # Environment Setup
 
 ```
